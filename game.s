@@ -11,9 +11,9 @@ SETUP:
 
 LOOP: j LOOP
 
-# ===================== Função LOAD_SCREEN =====================
-
 # ===================== Função PRINT =====================
+
+# Carrega um sprite na tela
 
 # a0 = endereço imagem
 # a1 = x
