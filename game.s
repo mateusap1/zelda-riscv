@@ -17,8 +17,10 @@ SETUP:
 
 # ==========================================
 
-    li s0, 160
-    li s1, 120
+    # li s0, 160
+    # li s1, 120
+    li s0, 164
+    li s1, 124
     la s2, tilemap_overworld
     la s5, overworld_gamemap
 
@@ -49,6 +51,7 @@ RENDER_MAP_LOOP_Y:
         sub t1, s1, t1
         add t1, t1, s3 # t1 = posY do gamemap
 
+        li t2, 16
         remu t3, t0, t2 # offsetX
         remu t4, t1, t2 # offsetY
 
