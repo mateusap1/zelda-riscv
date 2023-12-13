@@ -24,18 +24,70 @@
 
 SETUP:
     # ==========================
-    # s0 = Camera position em termos de 320x240
+    # s0 = Camera position em termos de (X/320)x(Y/240)
     # s1 = Current map index
     # ==========================
 
-    li a0, 0
+    li s0, 65536
+    li s1, 0
+
+START_MAP:
+    mv a0, s0
+    jal ra, SPLIT_REGISTER
+
+    li t2, 320
+    mul t0, a0, t2
+    addi t0, t0, 160
+
+    li t2, 240
+    mul t1, a1, t2
+    addi t1, t1, 120
+
+    mv a0, s1
     li a1, 0
-    li a2, 160
-    li a3, 120
+    mv a2, t0
+    mv a3, t1
 
     jal ra, RENDER_MAP
 
-END: j END
+GAME_LOOP:
+
+
+
+    j GAME_LOOP
+
+GAME_END: j GAME_END
+
+# ================ SPLIT_REGISTER ================
+
+# a0 = registrador
+# Retorna (a0=metade da esquerda, a1=metade da direita)
+
+SPLIT_REGISTER:
+    srli t0, a0, 16
+
+    li t2, 65535
+    and t1, a0, t2
+
+    mv a0, t0
+    mv a1, t1
+
+    jalr zero, ra, 0
+
+# ================================================
+
+# ================ JOIN_REGISTER ================
+
+# a0 = valor esquerda
+# a1 = valor direita
+
+JOIN_REGISTER:
+    slli a0, a0, 16
+    xor a0, a0, a1
+
+    jalr zero, ra, 0
+
+# ================================================
 
 # ================ RENDER_MAP ================
 
