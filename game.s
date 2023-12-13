@@ -13,6 +13,8 @@ SETUP:
     # s3 = Use freely 
     # s4 = Use freely
     # s5 = Current Game Map address
+    # s6 = Use freely
+    # s7 = Use freely
     # ==========================
 
 # ==========================================
@@ -54,6 +56,9 @@ RENDER_MAP_LOOP_Y:
         li t2, 16
         remu t3, t0, t2 # offsetX
         remu t4, t1, t2 # offsetY
+
+        mv s6, t3
+        mv s7, t4
 
         # O problema é que o gamemap é dividido por 16
         # Então dividir posX e posY por 16
@@ -160,7 +165,11 @@ RENDER_MAP_LOOP_Y:
 
         # ==============================
 
-        addi s4, s4, 16
+        li t5, 16
+        sub t5, t5, s6
+        add s4, s4, t5
+
+        # addi s4, s4, 16
 
         j RENDER_MAP_LOOP_X
 
@@ -168,7 +177,12 @@ RENDER_MAP_LOOP_Y:
 
     # ==============================
 
-    addi s3, s3, 16
+    # t3, t4
+    li t5, 16
+    sub t5, t5, s7
+    add s3, s3, t5
+
+    # addi s3, s3, 16
 
     j RENDER_MAP_LOOP_Y
 RENDER_MAP_LOOP_Y_END:
