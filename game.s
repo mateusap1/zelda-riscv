@@ -21,8 +21,8 @@ SETUP:
 
     # li s0, 160
     # li s1, 120
-    li s0, 164
-    li s1, 124
+    li s0, 16
+    li s1, 16
     la s2, tilemap_overworld
     la s5, overworld_gamemap
 
@@ -45,12 +45,28 @@ RENDER_MAP_LOOP_Y:
 
         # ==============================
 
+        # If s0 < 160: pretend s0 = 160
+        li t2, 160
+        blt s0, t2, SKIP_MAX_POSX
+
+        mv t2, s0
+
+        SKIP_MAX_POSX:
+
         li t0, 160
-        sub t0, s0, t0
+        sub t0, t2, t0
         add t0, t0, s4 # t0 = posX do gamemap
 
+        # If s1 < 120: pretend s1 = 120
+        li t2, 120
+        blt s1, t2, SKIP_MAX_POSY
+
+        mv t2, s1
+
+        SKIP_MAX_POSY:
+
         li t1, 120
-        sub t1, s1, t1
+        sub t1, t2, t1
         add t1, t1, s3 # t1 = posY do gamemap
 
         li t2, 16
