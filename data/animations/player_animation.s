@@ -1,3 +1,3 @@
 player_animation:
     .word 1 # Number of animations
-    .word 1, player_idle
+    .word player_idle # Animations are tiles of 16x16n

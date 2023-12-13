@@ -25,10 +25,12 @@ SETUP:
     # ==========================
     # s0 = Camera position em termos de (X/320)x(Y/240)
     # s1 = Current map index
+    # s2 = Current frame
     # ==========================
 
     li s0, 65536
     li s1, 0
+    li s2, 0
 
 START_MAP:
     mv a0, s0
@@ -49,12 +51,38 @@ START_MAP:
 
     jal ra, RENDER_MAP
 
+    mv a0, s0
+    jal ra, SPLIT_REGISTER
+
+    li t2, 320
+    mul t0, a0, t2
+    addi t0, t0, 160
+
+    li t2, 240
+    mul t1, a1, t2
+    addi t1, t1, 120
+
+    mv a0, s1
+    li a1, 1
+    mv a2, t0
+    mv a3, t1
+
+    jal ra, RENDER_MAP
+
 GAME_LOOP:
+    # Alterante frames
+    # Do it on 0 while we are at 1,
+    # Then do it at 1 while we are at 0
+    xori s2, s2, 1
+
     # Loop over objects 
     la a0, objects
     mv a1, s1
-    li a2, 0
+    mv a2, s2
     jal ra, RUN_OBJECTS
+
+    li t0, 0xFF200604
+    sb s2, 0(t0)
 
     j GAME_LOOP
 
@@ -131,7 +159,6 @@ RUN_OBJECTS_LOOP:
     and t2, s2, t2
     srli t2, t2, 4 # t2 = offsetX
 
-    # Apply mask
     li t3, 0x01
     and t3, s2, t3 # t3 = offsetY
 
@@ -214,7 +241,6 @@ RUN_OBJECTS_RENDER_RIGHT_TILE:
     srli t0, t0, 20 # t0 = tilePosX
     addi t1, t1, 1
 
-    # Apply mask
     li t1, 0x011100
     and t1, s2, t1
     srli t1, t1, 8 # t1 = tilePosY
@@ -247,7 +273,6 @@ RUN_OBJECTS_RENDER_ONLY_DOWN_TILE:
     and t0, s2, t0
     srli t0, t0, 20 # t0 = tilePosX
 
-    # Apply mask
     li t1, 0x011100
     and t1, s2, t1
     srli t1, t1, 8 # t1 = tilePosY
@@ -279,7 +304,6 @@ RUN_OBJECTS_RENDER_CURRENT_TILE:
     and t0, s2, t0
     srli t0, t0, 20 # t0 = tilePosX
 
-    # Apply mask
     li t1, 0x011100
     and t1, s2, t1
     srli t1, t1, 8 # t1 = tilePosY
@@ -306,6 +330,64 @@ RUN_OBJECTS_RENDER_CURRENT_TILE:
     jal ra, PRINT_TILE
 
 RUN_OBJECTS_RENDER_TILES_END:
+    # a0 = endereço tilemap
+    # a1 = render position x
+    # a2 = render position y
+    # a3 = frame (0 ou 1)
+    # a4 = tile index
+    # a5 = tile offset x
+    # a6 = tile offset y
+
+    li t0, 0x01000
+    and t0, s4, t0
+    srli t0, t0, 8 # t0 = curAnim
+
+    li t1, 0x0100
+    and t1, s4, t1
+    srli t1, t1, 8 # t1 = animIndex
+
+    lw t2, 4(s3) # Skip size
+    add t2, t2, t0 # t2 is the address of the anim image
+
+    # Print tile
+
+    mv a0, t2
+    mv a4, t1
+
+    # Find object coordinates in the screen
+
+    li t0, 0x100000
+    and t0, s2, t0
+    srli t0, t0, 20 # t0 = tilePosX
+
+    li t1, 0x011100
+    and t1, s2, t1
+    srli t1, t1, 8 # t1 = tilePosY
+
+    li t2, 0x010
+    and t2, s2, t2
+    srli t2, t2, 4 # t2 = offsetX
+
+    li t3, 0x01
+    and t3, s2, t3 # t3 = offsetY
+
+    slli a1, t0, 4
+    li t4, 320
+    remu a1, a1, t4
+    add a1, a1, t2
+
+    slli a2, t1, 4
+    li t4, 240
+    remu a2, a2, t4
+    add a2, a2, t3
+
+    mv a3, s9
+    li a5, 0
+    li a6, 0
+
+    jal ra, PRINT_TILE
+
+    # lw t0, 0(s3)
 
     # Get the sprite for the current animation
     # Render sprite for the current animation
