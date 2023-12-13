@@ -9,45 +9,18 @@ SETUP:
     # ==========================
     # s0 = PosX player
     # s1 = PosY player
-    # s2 = Current Map address
+    # s2 = Current Tile Map address
     # s3 = Use freely 
     # s4 = Use freely
+    # s5 = Current Game Map address
     # ==========================
-
-# =============== TEST_PRINT ===============
-
-# a0 = endereço imagem
-# a1 = render position x
-# a2 = render position y
-# a3 = frame (0 ou 1)
-# a4 = tile index
-# a5 = tile offset x
-# a6 = tile offset y
-
-la a0, tilemap_overworld
-mv a1, zero
-mv a2, zero
-mv a3, zero
-li a4, 2
-li a5, 0
-li a6, 0
-
-jal ra, PRINT_TILE
-
-
-la a0, tilemap_overworld
-li a1, 16
-li a2, 0
-mv a3, zero
-li a4, 2
-li a5, 8
-li a6, 8
-
-jal ra, PRINT_TILE
 
 # ==========================================
 
-END_2: j END_2
+    li s0, 160
+    li s1, 120
+    la s2, tilemap_overworld
+    la s5, overworld_gamemap
 
 
 RENDER_MAP_LOOP_Y_START:
@@ -55,7 +28,7 @@ RENDER_MAP_LOOP_Y_START:
 
 RENDER_MAP_LOOP_Y:
     li t0, 240
-    beq s3, t0, RENDER_MAP_LOOP_Y_END
+    bge s3, t0, RENDER_MAP_LOOP_Y_END
 
     # ==============================
 
@@ -64,66 +37,107 @@ RENDER_MAP_LOOP_Y:
 
     RENDER_MAP_LOOP_X:
         li t0, 320
-        beq s4, t0, RENDER_MAP_LOOP_X_END
+        bge s4, t0, RENDER_MAP_LOOP_X_END
 
         # ==============================
 
-        # Figure out tile map index
-        li t0, 120
-        sub t1, s0, t0
-        blt t1, t0, RENDER_MAP_X_NOT_MAX
+        li t0, 160
+        sub t0, s0, t0
+        add t0, t0, s4 # t0 = posX do gamemap
 
-        mv t0, t1 # t1 is greater than t0, so we are keeping it
+        li t1, 120
+        sub t1, s1, t1
+        add t1, t1, s3 # t1 = posY do gamemap
 
-        RENDER_MAP_X_NOT_MAX:
-        add t0, t0, s4 # t0 is the position of the tile which must be rendered
-        slli t1, t0, 4 # We figure out the actual tile by dividing it by 16
-        
-        li t2, 16
-        rem t0, t0, t2 # We save the mod as well
+        remu t3, t0, t2 # offsetX
+        remu t4, t1, t2 # offsetY
 
-        # Now figure out Y coordinate
-        li t2, 160
-        sub t3, s1, t2
-        blt t3, t2, RENDER_MAP_Y_NOT_MAX
+        # O problema é que o gamemap é dividido por 16
+        # Então dividir posX e posY por 16
+        srli t0, t0, 4 # posX
+        srli t1, t1, 4 # posY
 
-        mv t2, t3
-
-        RENDER_MAP_Y_NOT_MAX:
-        add t2, t2, s4
-        slli t3, t2, 4
-
-        li t4, 16
-        rem t2, t2, t4
-
-        # The tile is GAMEMAP + X * Y
-        la t4, overworld_map
-        # mul t5, t3, t1
-        # add t4, t4, t5
-
-        lb t4, 8(t4) # The index is t4
-
-        # Get tile map at index
-        li t5, 16
-        mul t4, t4, t5
-
-        la t5, tilemap_overworld
-        add t5, t5, t4
-
+        # Tile index vai estar localizado no gamemap na
+        # localização GAMEMAP_ADDRESS + posX + GAMEMAP.width * posY
+        lw t5, 4(s5) # GAMEMAP.width
+        mul t5, t5, t1 # GAMEMAP.width * posY
         add t5, t5, t0
+        add t5, t5, s5
+        addi t5, t5, 8 # t5 é o endereço do index
+
+        lbu t5, 0(t5) # t5 é o index
+
+        # ============ DEBUG ============
+        # li a0, 'y'
+        # li a7, 11
+        # ecall
+
+        # mv a0, t1
+        # li a7, 1
+        # ecall
+
+        # li a0, '\n'
+        # li a7, 11
+        # ecall
+
+        # li a0, 'x'
+        # li a7, 11
+        # ecall
+
+        # mv a0, t0
+        # li a7, 1
+        # ecall
+
+        # li a0, '\n'
+        # li a7, 11
+        # ecall
+
+        li a0, 'x'
+        li a7, 11
+        ecall
+
+        mv a0, t3
+        li a7, 1
+        ecall
+
+        li a0, 'y'
+        li a7, 11
+        ecall
+
+        mv a0, t4
+        li a7, 1
+        ecall
+
+        li a0, 'i'
+        li a7, 11
+        ecall
 
         mv a0, t5
+        li a7, 1
+        ecall
+
+        li a0, '\n'
+        li a7, 11
+        ecall
+        # ===============================
+
+        # a0 = endereço imagem
+        # a1 = render position x
+        # a2 = render position y
+        # a3 = frame (0 ou 1)
+        # a4 = tile index
+        # a5 = tile offset x
+        # a6 = tile offset y
+
+        mv a0, s2
         mv a1, s4
         mv a2, s3
         mv a3, zero
-        
-        li a4, 16
-        sub a4, t0, a4
+        mv a4, t5
+        mv a5, t3
+        mv a6, t4
 
-        li a5, 16
-        sub a5, t2, a5
-
-        jal ra, PRINT
+        jal ra, PRINT_TILE
 
         # ==============================
 

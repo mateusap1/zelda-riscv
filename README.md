@@ -100,3 +100,17 @@ jal ra, PRINT
 
 # ==========================================
 ```
+
+Para testar o print_tile
+
+```assembly
+la a0, tilemap_overworld
+li a1, 16
+li a2, 0
+mv a3, zero
+li a4, 2
+li a5, 8
+li a6, 8
+
+jal ra, PRINT_TILE
+```
