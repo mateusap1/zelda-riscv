@@ -59,7 +59,7 @@ RENDER_MAP_LOOP_Y:
 
         # Tile index vai estar localizado no gamemap na
         # localização GAMEMAP_ADDRESS + posX + GAMEMAP.width * posY
-        lw t5, 4(s5) # GAMEMAP.width
+        lw t5, 0(s5) # GAMEMAP.width
         mul t5, t5, t1 # GAMEMAP.width * posY
         add t5, t5, t0
         add t5, t5, s5
@@ -104,11 +104,27 @@ RENDER_MAP_LOOP_Y:
         li a7, 11
         ecall
 
-        mv a0, t4
+        mv a0, t1
         li a7, 1
         ecall
 
         li a0, 'i'
+        li a7, 11
+        ecall
+
+        mv a0, s4
+        li a7, 1
+        ecall
+
+        li a0, 'j'
+        li a7, 11
+        ecall
+
+        mv a0, s3
+        li a7, 1
+        ecall
+
+        li a0, 'n'
         li a7, 11
         ecall
 
