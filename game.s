@@ -10,20 +10,25 @@
 # Map
 .include "data/maps.s"
 
+# Sprites
+.include "sprites/player.s"
+
+# Animations
+.include "data/animations/player_animation.s"
+
+# Objects
+.include "data/objects/player_object.s"
+.include "data/objects.s"
+
 .text
+
 SETUP:
     # ==========================
-    # s0 = PosX player
-    # s1 = PosY player
-    # s2 = Current Tile Map address
-    # s3 = Use freely 
-    # s4 = Use freely
-    # s5 = Current Game Map address
-    # s6 = Use freely
-    # s7 = Use freely
+    # s0 = Camera position em termos de 320x240
+    # s1 = Current map index
     # ==========================
 
-    li a0, 1
+    li a0, 0
     li a1, 0
     li a2, 160
     li a3, 120
@@ -142,6 +147,23 @@ RENDER_MAP_LOOP_Y:
     # ===============================================
 
 RENDER_MAP_LOOP_Y_END:
+
+    lw ra, 44(sp)
+    lw s10, 40(sp)
+    lw s9, 36(sp)
+    lw s8, 32(sp)
+    lw s7, 28(sp)
+    lw s6, 24(sp)
+    lw s5, 20(sp)
+    lw s4, 16(sp)
+    lw s3, 12(sp)
+    lw s2, 8(sp)
+    lw s1, 4(sp)
+    lw s0, 0(sp)
+
+    addi sp, sp, 44
+
+    jalr zero, ra, 0
 
 # ============================================
 
@@ -369,3 +391,6 @@ PRINT_FIM:
     jalr zero, ra, 0
 
 # =================================================
+
+# Objects Update
+.include "data/objects/player_update.s"
