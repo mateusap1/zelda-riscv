@@ -23,15 +23,6 @@ SETUP:
     # s7 = Use freely
     # ==========================
 
-    # li a0, 16
-    # li a1, 16
-    # li a2, 0
-    # li a3, 0
-    # la a4, overworld_tilemap
-    # la a5, overworld_gamemap
-    # li a6, 40
-    # jal ra, FIND_GAMEMAP_TILE
-
     li a0, 1
     li a1, 0
     li a2, 160
@@ -83,7 +74,8 @@ RENDER_MAP:
     # Figure out based on array the gamemap address
     la t0, maps
     addi t0, t0, 4
-    add t0, t0, a0
+    slli t1, a0, 3
+    add t0, t0, t1
 
     lw s6, 0(t0)
     lw s7, 4(t0)
