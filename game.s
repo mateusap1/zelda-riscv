@@ -17,7 +17,6 @@
 .include "data/animations/player_animation.s"
 
 # Objects
-.include "data/objects/player_object.s"
 .include "data/objects.s"
 
 .text
@@ -51,12 +50,79 @@ START_MAP:
     jal ra, RENDER_MAP
 
 GAME_LOOP:
-
-
+    # Loop over objects 
+    la a0, objects
+    jal ra, RUN_OBJECTS
 
     j GAME_LOOP
 
 GAME_END: j GAME_END
+
+# ================ RUN_OBJECTS ================
+
+# a0 = objects address
+
+# s0 = current index
+# s1 = total objects num
+# s2 = Object[0]
+# s3 = Object[1]
+# s4 = Object[3]
+# s5 = objects address
+
+RUN_OBJECTS:
+    addi sp, sp, -28
+    sw ra, 24(sp)
+    sw s5, 20(sp)
+    sw s4, 16(sp)
+    sw s3, 12(sp)
+    sw s2, 8(sp)
+    sw s1, 4(sp)
+    sw s0, 0(sp)
+
+    li s0, 0
+    lw s1, 4(a0)
+    addi s5, a0, 8
+
+RUN_OBJECTS_LOOP:
+    beq s0, s1, RUN_OBJECTS_END
+
+    # Get object data
+    slli t0, s0, 4 # s0 *= 16
+    add t0, s5, t0
+
+    lw s2, 0(t0)
+    lw s3, 4(t0)
+    lw t1, 8(t0)
+    lw s4, 12(t0)
+
+    # Execute user code
+    mv a0, s2
+    mv a1, s3
+    mv a2, s4
+    jalr ra, t1, 0
+
+    # Render tiles where the user is sitting
+
+    # Get the sprite for the current animation
+    # Render sprite for the current animation
+
+    # Render object
+
+    addi s0, s0, 1
+
+RUN_OBJECTS_END:
+    lw ra, 24(sp)
+    lw s5, 20(sp)
+    lw s4, 16(sp)
+    lw s3, 12(sp)
+    lw s2, 8(sp)
+    lw s1, 4(sp)
+    lw s0, 0(sp)
+
+    addi sp, sp, 28
+    jalr zero, ra, 0
+
+# =============================================
 
 # ================ SPLIT_REGISTER ================
 
