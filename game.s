@@ -1,8 +1,14 @@
 .data
-.include "assets/overworld_map.s"
-.include "assets/tilemap_overworld.s"
-.include "assets/char.s"
-.include "assets/frogger.s"
+
+# Gamemaps
+.include "data/maps/gamemap/overworld_gamemap.s"
+.include "data/maps/gamemap/underworld_gamemap.s"
+
+# Tilemaps
+.include "data/maps/tilemap/overworld_tilemap.s"
+
+# Map
+.include "data/maps.s"
 
 .text
 SETUP:
@@ -17,201 +23,213 @@ SETUP:
     # s7 = Use freely
     # ==========================
 
-# ==========================================
+    # li a0, 16
+    # li a1, 16
+    # li a2, 0
+    # li a3, 0
+    # la a4, overworld_tilemap
+    # la a5, overworld_gamemap
+    # li a6, 40
+    # jal ra, FIND_GAMEMAP_TILE
 
-    # li s0, 160
-    # li s1, 120
-    li s0, 16
-    li s1, 16
-    la s2, tilemap_overworld
-    la s5, overworld_gamemap
+    li a0, 1
+    li a1, 0
+    li a2, 160
+    li a3, 120
 
-
-RENDER_MAP_LOOP_Y_START:
-    addi s3, zero, 0 # s3 = 0 (current index y)
-
-RENDER_MAP_LOOP_Y:
-    li t0, 240
-    bge s3, t0, RENDER_MAP_LOOP_Y_END
-
-    # ==============================
-
-    RENDER_MAP_LOOP_X_START:
-        addi s4, zero, 0 # s4 = 0 (current index x)
-
-    RENDER_MAP_LOOP_X:
-        li t0, 320
-        bge s4, t0, RENDER_MAP_LOOP_X_END
-
-        # ==============================
-
-        # If s0 < 160: pretend s0 = 160
-        li t2, 160
-        blt s0, t2, SKIP_MAX_POSX
-
-        mv t2, s0
-
-        SKIP_MAX_POSX:
-
-        li t0, 160
-        sub t0, t2, t0
-        add t0, t0, s4 # t0 = posX do gamemap
-
-        # If s1 < 120: pretend s1 = 120
-        li t2, 120
-        blt s1, t2, SKIP_MAX_POSY
-
-        mv t2, s1
-
-        SKIP_MAX_POSY:
-
-        li t1, 120
-        sub t1, t2, t1
-        add t1, t1, s3 # t1 = posY do gamemap
-
-        li t2, 16
-        remu t3, t0, t2 # offsetX
-        remu t4, t1, t2 # offsetY
-
-        mv s6, t3
-        mv s7, t4
-
-        # O problema é que o gamemap é dividido por 16
-        # Então dividir posX e posY por 16
-        srli t0, t0, 4 # posX
-        srli t1, t1, 4 # posY
-
-        # Tile index vai estar localizado no gamemap na
-        # localização GAMEMAP_ADDRESS + posX + GAMEMAP.width * posY
-        lw t5, 0(s5) # GAMEMAP.width
-        mul t5, t5, t1 # GAMEMAP.width * posY
-        add t5, t5, t0
-        add t5, t5, s5
-        addi t5, t5, 8 # t5 é o endereço do index
-
-        lbu t5, 0(t5) # t5 é o index
-
-        # ============ DEBUG ============
-        # li a0, 'y'
-        # li a7, 11
-        # ecall
-
-        # mv a0, t1
-        # li a7, 1
-        # ecall
-
-        # li a0, '\n'
-        # li a7, 11
-        # ecall
-
-        # li a0, 'x'
-        # li a7, 11
-        # ecall
-
-        # mv a0, t0
-        # li a7, 1
-        # ecall
-
-        # li a0, '\n'
-        # li a7, 11
-        # ecall
-
-        li a0, 'x'
-        li a7, 11
-        ecall
-
-        mv a0, t3
-        li a7, 1
-        ecall
-
-        li a0, 'y'
-        li a7, 11
-        ecall
-
-        mv a0, t1
-        li a7, 1
-        ecall
-
-        li a0, 'i'
-        li a7, 11
-        ecall
-
-        mv a0, s4
-        li a7, 1
-        ecall
-
-        li a0, 'j'
-        li a7, 11
-        ecall
-
-        mv a0, s3
-        li a7, 1
-        ecall
-
-        li a0, 'n'
-        li a7, 11
-        ecall
-
-        mv a0, t5
-        li a7, 1
-        ecall
-
-        li a0, '\n'
-        li a7, 11
-        ecall
-        # ===============================
-
-        # a0 = endereço imagem
-        # a1 = render position x
-        # a2 = render position y
-        # a3 = frame (0 ou 1)
-        # a4 = tile index
-        # a5 = tile offset x
-        # a6 = tile offset y
-
-        mv a0, s2
-        mv a1, s4
-        mv a2, s3
-        mv a3, zero
-        mv a4, t5
-        mv a5, t3
-        mv a6, t4
-
-        jal ra, PRINT_TILE
-
-        # ==============================
-
-        li t5, 16
-        sub t5, t5, s6
-        add s4, s4, t5
-
-        # addi s4, s4, 16
-
-        j RENDER_MAP_LOOP_X
-
-    RENDER_MAP_LOOP_X_END:
-
-    # ==============================
-
-    # t3, t4
-    li t5, 16
-    sub t5, t5, s7
-    add s3, s3, t5
-
-    # addi s3, s3, 16
-
-    j RENDER_MAP_LOOP_Y
-RENDER_MAP_LOOP_Y_END:
+    jal ra, RENDER_MAP
 
 END: j END
 
-# ===================== Função PRINT_TILE =====================
+# ================ RENDER_MAP ================
+
+# a0 = map index => vai nos dar acesso ao tilemap e gamemap
+# a1 = frame (0 ou 1)
+# a2 = pos x do player
+# a3 = pos y do player
+
+# s0 = i (coord x do bitmap)
+# s1 = j (coord y do bitmap)
+# s2 = a0 = map index
+# s3 = a1 = frame
+# s4 = a2 = pos x do player
+# s5 = a3 = pos y do player
+# s6 = tilemap address
+# s7 = gamemap address
+# s8 = gamemap width
+# s9 = offsetX
+# s10 = offsetY
+
+RENDER_MAP:
+    addi sp, sp, -44
+    sw ra, 44(sp)
+    sw s10, 40(sp)
+    sw s9, 36(sp)
+    sw s8, 32(sp)
+    sw s7, 28(sp)
+    sw s6, 24(sp)
+    sw s5, 20(sp)
+    sw s4, 16(sp)
+    sw s3, 12(sp)
+    sw s2, 8(sp)
+    sw s1, 4(sp)
+    sw s0, 0(sp)
+
+    mv s2, a0
+    mv s3, a1
+    mv s4, a2
+    mv s5, a3
+
+    # Figure out based on array the gamemap address
+    la t0, maps
+    addi t0, t0, 4
+    add t0, t0, a0
+
+    lw s6, 0(t0)
+    lw s7, 4(t0)
+    lw s8, 0(s7)
+
+RENDER_MAP_LOOP_Y_START:
+    mv s1, zero
+
+RENDER_MAP_LOOP_Y:
+    li t0, 240
+    bge s1, t0, RENDER_MAP_LOOP_Y_END
+
+    # =========== RENDER_MAP_LOOP_Y_INNER ===========
+
+    RENDER_MAP_LOOP_X_START:
+        mv s0, zero
+
+    RENDER_MAP_LOOP_X:
+        li t0, 320
+        bge s0, t0, RENDER_MAP_LOOP_X_END
+
+        # =========== RENDER_MAP_LOOP_X_INNER ===========
+
+        mv a0, s4
+        mv a1, s5
+        mv a2, s0
+        mv a3, s1
+        mv a4, s6
+        mv a5, s7
+        mv a6, s8
+        jal ra, FIND_GAMEMAP_TILE
+
+        mv t0, a0 # t0 = tile index
+        mv s9, a3 # t1 = offsetX
+        mv s10, a4 # t2 = offsetY
+
+        mv a0, s6
+        mv a1, s0
+        mv a2, s1
+        mv a3, s3
+        mv a4, t0
+        mv a5, s9
+        mv a6, s10
+
+        jal ra, PRINT_TILE
+
+        # Calcular index i da próxima iteração
+        li t0, 16
+        sub t0, t0, s9
+        add s0, s0, t0
+
+        j RENDER_MAP_LOOP_X
+
+        # ===============================================
+    
+    RENDER_MAP_LOOP_X_END:
+
+    li t0, 16
+    sub t0, t0, s10
+    add s1, s1, t0
+
+    j RENDER_MAP_LOOP_Y
+
+    # ===============================================
+
+RENDER_MAP_LOOP_Y_END:
+
+# ============================================
+
+# ================= FIND_GAMEMAP_TILE =================
+
+# Find gamemap tile when player is at (x, y) and we are
+# rendering the pixel (i, j)
+# Returns (a0=tile_index, a1=posxTile, a2=posyTile, a3=offsetX, a4=offsetYx)
+
+# a0 = posx do player
+# a1 = posy do player
+# a2 = coordenada x do bitmap
+# a3 = coordenada y do bitmap
+# a4 = tilemap address
+# a5 = gamemap address
+# a6 = gamemap width
+
+FIND_GAMEMAP_TILE:
+
+    # MAX(posx, 160)
+    li t0, 160
+    bgt a0, t0, FIND_GAMEMAP_TILE_X_GREATER
+    mv a0, t0
+
+FIND_GAMEMAP_TILE_X_GREATER:
+
+    # MAX(posy, 120)
+    li t0, 120
+    bgt a1, t0, FIND_GAMEMAP_TILE_Y_GREATER
+    mv a1, t0
+
+FIND_GAMEMAP_TILE_Y_GREATER:
+
+    # Calcular posicao x equivalente do gamemap
+    # para a corrdenada i atual
+    li t0, 160
+    sub t2, a0, t0 # posx do player - 160
+    add t2, t2, a2 # t2 = posX do gamemap 
+
+    # Calcular posicao y equivalente do gamemap
+    # para a corrdenada j atual
+    li t0, 120
+    sub t3, a1, t0 # posy do player - 120
+    add t3, t3, a3 # t3 = posY do gamemap 
+
+    # t2 = posX do gamemap
+    # t3 = posY do gamemap
+
+    li t0, 16
+    remu t4, t2, t0 # t4 = offsetX
+    remu t5, t3, t0 # t5 = offsetY
+
+    # O problema é que o gamemap é dividido por 16
+    # Então dividir posX e posY por 16
+    srli t2, t2, 4 # posX
+    srli t3, t3, 4 # posY
+
+    # Tile index vai estar localizado no gamemap na
+    # localização GAMEMAP_ADDRESS + posX + GAMEMAP.width * posY
+    mul t0, a6, t3 # GAMEMAP.width * posY
+    add t1, a5, t0
+    add t1, t1, t2
+    addi t1, t1, 8 # t1 é o endereço do index
+
+    lbu a0, 0(t1) # a0 é o index
+    mv a1, t2
+    mv a2, t3
+    mv a3, t4
+    mv a4, t5
+
+    jalr zero, ra, 0
+
+# =====================================================
+
+# ===================== PRINT_TILE =====================
 
 # Carrega um tile na tela assumindo 16x16
 # Offset precisa ser divisivel por 4
-# Assumindo que o player sempre mova de 4n em 4n pixels
 
-# a0 = endereço imagem
+# a0 = endereço tilemap
 # a1 = render position x
 # a2 = render position y
 # a3 = frame (0 ou 1)
@@ -299,7 +317,7 @@ PRINT_TILE_FIM:
 
 # ========================================================
 
-# ===================== Função PRINT =====================
+# ===================== PRINT =====================
 
 # Carrega um sprite na tela
 
@@ -357,3 +375,5 @@ NEXT_LINHA:
 
 PRINT_FIM:
     jalr zero, ra, 0
+
+# =================================================

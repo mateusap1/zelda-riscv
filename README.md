@@ -114,3 +114,53 @@ li a6, 8
 
 jal ra, PRINT_TILE
 ```
+
+Para debugar o render
+
+```assembly
+# ============ DEBUG ============
+li a0, 'x'
+li a7, 11
+ecall
+
+mv a0, t3
+li a7, 1
+ecall
+
+li a0, 'y'
+li a7, 11
+ecall
+
+mv a0, t1
+li a7, 1
+ecall
+
+li a0, 'i'
+li a7, 11
+ecall
+
+mv a0, s4
+li a7, 1
+ecall
+
+li a0, 'j'
+li a7, 11
+ecall
+
+mv a0, s3
+li a7, 1
+ecall
+
+li a0, 'n'
+li a7, 11
+ecall
+
+mv a0, t5
+li a7, 1
+ecall
+
+li a0, '\n'
+li a7, 11
+ecall
+# ===============================
+```
