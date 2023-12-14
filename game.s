@@ -150,16 +150,17 @@ RUN_OBJECTS_LOOP:
     mv a0, s2
     mv a1, s3
     mv a2, s4
+    mv a3, t0
     jalr ra, t1, 0
 
     # Render tiles where the user is sitting
     # If offsets are 0, render current tile
 
-    li t2, 0x010
+    li t2, 0x0f0
     and t2, s2, t2
     srli t2, t2, 4 # t2 = offsetX
 
-    li t3, 0x01
+    li t3, 0x0f
     and t3, s2, t3 # t3 = offsetY
 
     slt t4, zero, t2 # t4 = offsetX > 0
@@ -173,12 +174,12 @@ RUN_OBJECTS_LOOP:
     j RUN_OBJECTS_RENDER_CURRENT_TILE
 
 RUN_OBJECTS_RENDER_DIAGONAL_TILE:
-    li t0, 0x100000
+    li t0, 0xf00000
     and t0, s2, t0
     srli t0, t0, 20 # t0 = tilePosX
     addi t0, t0, 1
 
-    li t1, 0x011100
+    li t1, 0x0fff00
     and t1, s2, t1
     srli t1, t1, 8 # t1 = tilePosY
     addi t1, t1, 1
@@ -205,11 +206,11 @@ RUN_OBJECTS_RENDER_DIAGONAL_TILE:
     jal ra, PRINT_TILE
 
 RUN_OBJECTS_RENDER_DOWN_TILE:
-    li t0, 0x100000
+    li t0, 0xf00000
     and t0, s2, t0
     srli t0, t0, 20 # t0 = tilePosX
 
-    li t1, 0x011100
+    li t1, 0x0fff00
     and t1, s2, t1
     srli t1, t1, 8 # t1 = tilePosY
     addi t1, t1, 1
@@ -236,12 +237,12 @@ RUN_OBJECTS_RENDER_DOWN_TILE:
     jal ra, PRINT_TILE
 
 RUN_OBJECTS_RENDER_RIGHT_TILE:
-    li t0, 0x100000
+    li t0, 0xf00000
     and t0, s2, t0
     srli t0, t0, 20 # t0 = tilePosX
     addi t1, t1, 1
 
-    li t1, 0x011100
+    li t1, 0x0fff00
     and t1, s2, t1
     srli t1, t1, 8 # t1 = tilePosY
 
@@ -269,11 +270,11 @@ RUN_OBJECTS_RENDER_RIGHT_TILE:
     j RUN_OBJECTS_RENDER_CURRENT_TILE
 
 RUN_OBJECTS_RENDER_ONLY_DOWN_TILE:
-    li t0, 0x100000
+    li t0, 0xf00000
     and t0, s2, t0
     srli t0, t0, 20 # t0 = tilePosX
 
-    li t1, 0x011100
+    li t1, 0x0fff00
     and t1, s2, t1
     srli t1, t1, 8 # t1 = tilePosY
     addi t1, t1, 1
@@ -300,11 +301,11 @@ RUN_OBJECTS_RENDER_ONLY_DOWN_TILE:
     jal ra, PRINT_TILE
 
 RUN_OBJECTS_RENDER_CURRENT_TILE:
-    li t0, 0x100000
+    li t0, 0xf00000
     and t0, s2, t0
     srli t0, t0, 20 # t0 = tilePosX
 
-    li t1, 0x011100
+    li t1, 0x0fff00
     and t1, s2, t1
     srli t1, t1, 8 # t1 = tilePosY
 
@@ -338,11 +339,11 @@ RUN_OBJECTS_RENDER_TILES_END:
     # a5 = tile offset x
     # a6 = tile offset y
 
-    li t0, 0x01000
+    li t0, 0x0f000
     and t0, s4, t0
     srli t0, t0, 8 # t0 = curAnim
 
-    li t1, 0x0100
+    li t1, 0x0f00
     and t1, s4, t1
     srli t1, t1, 8 # t1 = animIndex
 
@@ -356,19 +357,19 @@ RUN_OBJECTS_RENDER_TILES_END:
 
     # Find object coordinates in the screen
 
-    li t0, 0x100000
+    li t0, 0xf00000
     and t0, s2, t0
     srli t0, t0, 20 # t0 = tilePosX
 
-    li t1, 0x011100
+    li t1, 0x0fff00
     and t1, s2, t1
     srli t1, t1, 8 # t1 = tilePosY
 
-    li t2, 0x010
+    li t2, 0x0f0
     and t2, s2, t2
     srli t2, t2, 4 # t2 = offsetX
 
-    li t3, 0x01
+    li t3, 0x0f
     and t3, s2, t3 # t3 = offsetY
 
     slli a1, t0, 4
