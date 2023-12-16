@@ -33,8 +33,10 @@ PLAYER_UPDATE_KEYPOLL:
     li t0, 'd'
 	beq t0, t1, PLAYER_MOVE_RIGHT
 
+    j PLAYER_MOVE_END
+
 PLAYER_MOVE_UP:
-    li t0, 0xf00000
+    li t0, 0xfff00000
     and t0, a0, t0
     srli t0, t0, 20 # t0 = tilePosX
 
@@ -90,7 +92,7 @@ PLAYER_MOVE_UP_EDGE:
     j PLAYER_MOVE_UPDATE
 
 PLAYER_MOVE_DOWN:
-    li t0, 0xf00000
+    li t0, 0xfff00000
     and t0, a0, t0
     srli t0, t0, 20 # t0 = tilePosX
 
@@ -150,7 +152,7 @@ PLAYER_MOVE_DOWN_EDGE:
     j PLAYER_MOVE_UPDATE
 
 PLAYER_MOVE_RIGHT:
-    li t0, 0xf00000
+    li t0, 0xfff00000
     and t0, a0, t0
     srli t0, t0, 20 # t0 = tilePosX
 
@@ -189,7 +191,7 @@ PLAYER_MOVE_RIGHT_OFFSET:
 
 PLAYER_MOVE_RIGHT_BIG_OFFSET:
     # Se offsetX >= 16,
-    #   offsetX = offsetX - 16; 
+    #   offsetX = offsetX - 16;
     #   posX += 1;
 
     li t5, 16
@@ -210,7 +212,7 @@ PLAYER_MOVE_RIGHT_EDGE:
     j PLAYER_MOVE_UPDATE
 
 PLAYER_MOVE_LEFT:
-    li t0, 0xf00000
+    li t0, 0xfff00000
     and t0, a0, t0
     srli t0, t0, 20 # t0 = tilePosX
 
@@ -263,7 +265,6 @@ PLAYER_MOVE_LEFT_EDGE:
     mv t2, zero
 
 PLAYER_MOVE_UPDATE:
-
     add t4, zero, t3
 
     slli t2, t2, 4
@@ -278,15 +279,4 @@ PLAYER_MOVE_UPDATE:
     sw t4, 0(a3)
 
 PLAYER_MOVE_END:
-
-    # li a7, 10
-    # ecall
-
-    # mv a0, a3
-    # li a7, 1
-    # ecall
-
-    # li t4, 0x01101100
-    # sw t4, 0(a3)
-
     jalr zero, ra, 0

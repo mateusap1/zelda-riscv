@@ -301,7 +301,7 @@ RUN_OBJECTS_RENDER_ONLY_DOWN_TILE:
     jal ra, PRINT_TILE
 
 RUN_OBJECTS_RENDER_CURRENT_TILE:
-    li t0, 0xf00000
+    li t0, 0xfff00000
     and t0, s2, t0
     srli t0, t0, 20 # t0 = tilePosX
 
@@ -357,7 +357,7 @@ RUN_OBJECTS_RENDER_TILES_END:
 
     # Find object coordinates in the screen
 
-    li t0, 0xf00000
+    li t0, 0xfff00000
     and t0, s2, t0
     srli t0, t0, 20 # t0 = tilePosX
 
