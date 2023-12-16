@@ -19,7 +19,94 @@
 # Objects
 .include "data/objects.s"
 
+# start
+.include "data/startmidi.s"
+.include "data/startframe.s"
+
 .text
+
+	li s0,0xFF200604	# seleciona frame 0
+	sw zero,0(s0)
+	
+	li s0,0xFF000000	# Frame0
+	li s1,0xFF100000	# Frame1
+	la t0,startframe	# endere o da imagem
+	lw t1,0(t0)		# numero de linhas
+	lw t2,4(t0)		# numero de colunas
+	li t3,0			# contador
+	mul t4,t1,t2		# numero total de pixels
+	addi t0,t0,8		# primeiro pixel da imagem
+
+DRAW_START: 	
+	beq t3,t4,DATA_START	
+	lw t5,0(t0)
+	sw t5,0(s0)
+	sw t5,0(s1)	
+	addi t0,t0,4
+	addi s0,s0,4
+	addi s1,s1,4
+	addi t3,t3,1
+	
+	j DRAW_START
+		
+	
+
+DATA_START:	
+	li s0,0xFF200604	# Escolhe o Frame 0 ou 1
+	li t3,0			# inicio Frame 0
+	
+	la s1,startmidi 	# define o endere o do n mero de notas
+	lw s2,0(s1)		# le o numero de notas
+	addi s1,s1,4		# define o endereco das notas
+	li t5,0			# zera o contador de notas
+	li a2,68		# define o instrumento
+	li a3,127		# define o volume
+
+
+LOOP_START:
+
+	######## VERIFICA SE TEM TECLA #######
+	
+	li t0, 0xFF200000 	# t0 = endereço de controle do teclado
+	lw t1, 0(t0) 		# t1 = conteudo de t0
+	andi t2, t1, 1 		# Mascara o primeiro bit (verifica sem tem tecla)
+	
+	bne t2,,zero,END_START 	# Se não tem tecla continua na tela inicial
+	
+	#### DEFINE FRAME #####
+	sw t3,0(s0)		# seleciona a Frame t2
+	xori t3,t3,0x001	# escolhe a outra frame
+	li a0,50		# pausa de 50m segundos
+	li a7,32
+	ecall
+	
+	######## TOCA NOTA ######
+	
+	beq t5,s2,DATA_START		# contador chegou no final? 
+	lw a0,0(s1)			# le o valor da nota
+	lw a1,4(s1)			# le a duracao da nota
+	li a7,31			# define a chamada de syscall
+	ecall				# toca a nota	
+	addi s1,s1,8			# incrementa para o endere o da pr xima nota
+	addi t5,t5,1			# incrementa o contador de notas
+	jal zero,LOOP_START		# Continua o loop da tela inicial
+	
+END_START:
+	
+	li a0,40		# define a nota
+	li a1,0			# define a dura  o da nota em ms
+	li a2,127		# define o instrumento
+	li a3,127		# define o volume
+	li a7,33		# define o syscall
+	ecall			# toca a nota
+	
+	add t0,zero,zero
+	add t1,zero,zero
+	add t2,zero,zero
+	add t3,zero,zero
+	add t4,zero,zero
+	add t5,zero,zero
+	
 
 SETUP:
     # ==========================
