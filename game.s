@@ -28,7 +28,7 @@ SETUP:
     # s2 = Current frame
     # ==========================
 
-    li s0, 65536
+    li s0, 0x0
     li s1, 0
     li s2, 0
 
@@ -153,6 +153,13 @@ RUN_OBJECTS_LOOP:
     mv a3, t0
     jalr ra, t1, 0
 
+    slli t0, s0, 4 # s0 *= 16
+    add t0, s5, t0
+
+    lw s2, 0(t0)
+    lw s3, 4(t0)
+    lw s4, 12(t0)
+
     # Render tiles where the user is sitting
     # If offsets are 0, render current tile
 
@@ -174,7 +181,7 @@ RUN_OBJECTS_LOOP:
     j RUN_OBJECTS_RENDER_CURRENT_TILE
 
 RUN_OBJECTS_RENDER_DIAGONAL_TILE:
-    li t0, 0xf00000
+    li t0, 0xfff00000
     and t0, s2, t0
     srli t0, t0, 20 # t0 = tilePosX
     addi t0, t0, 1
@@ -192,13 +199,16 @@ RUN_OBJECTS_RENDER_DIAGONAL_TILE:
 
     slli a2, t1, 4
     li t2, 240
-    remu a2, a2, t1
+    remu a2, a2, t2
 
     mv a3, s9
 
-    mul a4, t1, s8 # gamemap.width * tileposy
-    add a4, a4, t0 # += tileposx
-    lb a4, 0(a4)
+    mv t2, s7
+    mul t2, t1, s8 # gamemap.width * tileposy
+    add t2, t2, t0 # += tileposx
+    addi t2, t2, 8
+
+    lb a4, 0(t2)
 
     li a5, 0
     li a6, 0
@@ -206,7 +216,7 @@ RUN_OBJECTS_RENDER_DIAGONAL_TILE:
     jal ra, PRINT_TILE
 
 RUN_OBJECTS_RENDER_DOWN_TILE:
-    li t0, 0xf00000
+    li t0, 0xfff00000
     and t0, s2, t0
     srli t0, t0, 20 # t0 = tilePosX
 
@@ -223,13 +233,16 @@ RUN_OBJECTS_RENDER_DOWN_TILE:
 
     slli a2, t1, 4
     li t2, 240
-    remu a2, a2, t1
+    remu a2, a2, t2
 
     mv a3, s9
 
-    mul a4, t1, s8 # gamemap.width * tileposy
-    add a4, a4, t0 # += tileposx
-    lb a4, 0(a4)
+    mv t2, s7
+    mul t2, t1, s8 # gamemap.width * tileposy
+    add t2, t2, t0 # += tileposx
+    addi t2, t2, 8
+
+    lb a4, 0(t2)
 
     li a5, 0
     li a6, 0
@@ -237,10 +250,10 @@ RUN_OBJECTS_RENDER_DOWN_TILE:
     jal ra, PRINT_TILE
 
 RUN_OBJECTS_RENDER_RIGHT_TILE:
-    li t0, 0xf00000
+    li t0, 0xfff00000
     and t0, s2, t0
     srli t0, t0, 20 # t0 = tilePosX
-    addi t1, t1, 1
+    addi t0, t0, 1
 
     li t1, 0x0fff00
     and t1, s2, t1
@@ -254,13 +267,16 @@ RUN_OBJECTS_RENDER_RIGHT_TILE:
 
     slli a2, t1, 4
     li t2, 240
-    remu a2, a2, t1
+    remu a2, a2, t2
 
     mv a3, s9
 
-    mul a4, t1, s8 # gamemap.width * tileposy
-    add a4, a4, t0 # += tileposx
-    lb a4, 0(a4)
+    mv t2, s7
+    mul t2, t1, s8 # gamemap.width * tileposy
+    add t2, t2, t0 # += tileposx
+    addi t2, t2, 8
+
+    lb a4, 0(t2)
 
     li a5, 0
     li a6, 0
@@ -270,7 +286,7 @@ RUN_OBJECTS_RENDER_RIGHT_TILE:
     j RUN_OBJECTS_RENDER_CURRENT_TILE
 
 RUN_OBJECTS_RENDER_ONLY_DOWN_TILE:
-    li t0, 0xf00000
+    li t0, 0xfff00000
     and t0, s2, t0
     srli t0, t0, 20 # t0 = tilePosX
 
@@ -287,13 +303,16 @@ RUN_OBJECTS_RENDER_ONLY_DOWN_TILE:
 
     slli a2, t1, 4
     li t2, 240
-    remu a2, a2, t1
+    remu a2, a2, t2
 
     mv a3, s9
 
-    mul a4, t1, s8 # gamemap.width * tileposy
-    add a4, a4, t0 # += tileposx
-    lb a4, 0(a4)
+    mv t2, s7
+    mul t2, t1, s8 # gamemap.width * tileposy
+    add t2, t2, t0 # += tileposx
+    addi t2, t2, 8
+
+    lb a4, 0(t2)
 
     li a5, 0
     li a6, 0
@@ -321,8 +340,11 @@ RUN_OBJECTS_RENDER_CURRENT_TILE:
 
     mv a3, s9
 
+    mv t2, s7
     mul t2, t1, s8 # gamemap.width * tileposy
     add t2, t2, t0 # += tileposx
+    addi t2, t2, 8
+
     lb a4, 0(t2)
 
     li a5, 0
