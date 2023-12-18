@@ -28,7 +28,7 @@ SETUP:
     # s2 = Current frame
     # ==========================
 
-    li s0, 0x0
+    li s0, 0x00000001
     li s1, 0
     li s2, 0
 
@@ -709,12 +709,24 @@ PRINT_TILE:
 
     addi t1, a0, 8 # Começo da imagem do tilemap
 
+    #Correção de loop infinito na primeira linha do tilemap
+    li t2, 9
+    rem t2, a4, t2
+    slli t2, t2, 4
+    add t1, t1, t2
+
+    li t2, 9
+    div t2, a4, t2
+    slli t2, t2, 4
+    mul t2, t2, t4
+    add t1, t1, t2
+
     # Adiciona 16 * index do tilemap
-    li t2, 16
-    mul t2, a4, t2
+    #li t2, 16
+    #mul t2, a4, t2
 
     # Encontramos o inicio da imagem no tilemap
-    add t1, t1, t2
+    #add t1, t1, t2
 
     # Pulamos o offset também
     add t1, t1, a5 # Pulando o offset x
