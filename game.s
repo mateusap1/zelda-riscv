@@ -32,50 +32,6 @@ SETUP:
     li s1, 0
     li s2, 0
 
-    # # ========== DEBUG ==========
-    # a0 = posx do player
-    # a1 = posy do player
-    # a2 = coordenada x do bitmap
-    # a3 = coordenada y do bitmap
-    # a4 = tilemap address
-    # a5 = gamemap address
-    # a6 = gamemap width
-
-    li a0, 0
-    li a1, 0
-    li a2, 0
-    li a3, 0
-    la a4, overworld_tilemap
-    la a5, overworld_gamemap
-    li a6, 40
-    jal ra, FIND_GAMEMAP_TILE
-
-    mv a0, a0
-    li a7, 1
-    ecall
-    li a0, ' '
-    li a7, 11
-    mv a0, a1
-    li a7, 1
-    ecall
-    li a0, ' '
-    li a7, 11
-    mv a0, a2
-    li a7, 1
-    ecall
-    li a0, ' '
-    li a7, 11
-    mv a0, a3
-    li a7, 1
-    ecall
-    
-    li a0, '\n'
-    li a7, 11
-
-
-    # GET_OBJECT_SPRITE_TILEMAP
-    # # =======================================
-
 START_MAP:
     # ============== Render map ==============
 
@@ -114,6 +70,25 @@ START_MAP:
     mv a3, t1
 
     jal ra, RENDER_MAP
+
+    # # ========== DEBUG ==========
+    # a0 = endereço tilemap
+    # a1 = render position x
+    # a2 = render position y
+    # a3 = frame (0 ou 1)
+    # a4 = tile index
+    # a5 = tile offset x
+    # a6 = tile offset y
+
+    la a0, overworld_tilemap
+    li a1, 16
+    li a2, 16
+    li a3, 0
+    li a4, 20
+    li a5, 0
+    li a6, 0
+    jal ra, PRINT_TILE
+    # # =======================================
 
     # ========================================
 

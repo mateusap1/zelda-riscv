@@ -600,10 +600,16 @@ PRINT_TILE:
 
     addi t1, a0, 8 # Começo da imagem do tilemap
 
-    slli t2, a4, 4 # Index tilemap *= 16
-
-    # Encontramos o inicio da imagem no tilemap
+    li t2, 9
+    rem t2, a4, t2
+    slli t2, t2, 4
     add t1, t1, t2
+
+    li t2, 9
+    div t2, a4, t2
+    slli t2, t2, 4
+    mul t2, t2, t4
+    add t1, t1, t2 
 
     # Pulamos o offset também
     add t1, t1, a5 # Pulando o offset x
