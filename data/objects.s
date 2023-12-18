@@ -1,5 +1,5 @@
 objects:
-    .word 20, 1 # size limit x current size (of objects)
+    .word 1
     .word 0x00100100, player_animation, PLAYER_UPDATE, 0x04000034
 
 # PLAYER
