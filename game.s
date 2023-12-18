@@ -3,10 +3,15 @@
 # Gamemaps
 .include "data/maps/gamemap/overworld_gamemap.s"
 .include "data/maps/gamemap/underworld_gamemap.s"
+.include "data/maps/gamemap/areasecreta_gamemap.s"
+.include "data/maps/gamemap/masmorra_gamemap.s"
+.include "data/maps/gamemap/telainicial_gamemap.s"
 
 # Tilemaps
 .include "data/maps/tilemap/overworld_tilemap.s"
-.include "data/maps/tilemap/overworld_tilemap.s"
+.include "data/maps/tilemap/masmorra_tilemap.s"
+.include "data/maps/tilemap/areasecreta_tilemap.s"
+.include "data/maps/tilemap/telainicial_tilemap.s"
 
 # Map
 .include "data/maps.s"
@@ -29,7 +34,7 @@ SETUP:
     # s2 = Current frame
     # ==========================
 
-    li s0, 0x00000000
+    li s0, 0x00010001
     li s1, 0
     li s2, 0
 
