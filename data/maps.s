@@ -1,3 +1,3 @@
 maps:
-    .word 2 # Number of maps
-    .word overworld_tilemap, overworld_gamemap, overworld_tilemap, underworld_gamemap
+    .word 3 # Number of maps
+    .word overworld_tilemap, overworld_gamemap, areasecreta_tilemap, areasecreta_gamemap_gamemap, masmorra_tilemap, masmorra_gamemap

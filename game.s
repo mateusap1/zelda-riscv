@@ -6,6 +6,7 @@
 
 # Tilemaps
 .include "data/maps/tilemap/overworld_tilemap.s"
+.include "data/maps/tilemap/overworld_tilemap.s"
 
 # Map
 .include "data/maps.s"
@@ -28,7 +29,7 @@ SETUP:
     # s2 = Current frame
     # ==========================
 
-    li s0, 0x00000001
+    li s0, 0x00000000
     li s1, 0
     li s2, 0
 
