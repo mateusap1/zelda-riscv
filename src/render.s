@@ -272,15 +272,6 @@ RENDER_TILE_OFFSET_X_NOT_ZERO:
     beq t1, zero, RENDER_TILE_OFFSET_Y_NOT_ZERO
     mv t1, zero
 RENDER_TILE_OFFSET_Y_NOT_ZERO:
-
-    # a0 = endereço tilemap
-    # a1 = render position x
-    # a2 = render position y
-    # a3 = frame (0 ou 1)
-    # a4 = tile index
-    # a5 = tile offset x
-    # a6 = tile offset y
-
     mv a0, a5
     mv a1, t2
     mv a2, t3
@@ -351,7 +342,7 @@ RENDER_BACKGROUND_CURRENT_TILE:
     mv a3, s6 
     mv a4, s1
     mv a5, s0
-    mv s6, s2
+    mv a6, s2
     jal ra, RENDER_TILE
 
 RENDER_BACKGROUND_RIGHT_TILE:

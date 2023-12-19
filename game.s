@@ -32,25 +32,13 @@ SETUP:
     li s1, 0
     li s2, 0
 
-    # a0 = object position - Objects[i][0]
-    # a1 = object animation address - Objects[i][1]
-    # a2 = object info - Objects[1][2]
-    # a3 = camera position
-    # a4 = frame
-
-    # li a0, 0x00000040
-    # la a1, player_animation
-    # li a2, 0x04000034
-    # li a3, 0x0
-    # li a4, 0
-    # jal ra, RENDER_OBJECT
-
-    # j GAME_END
+    # Pra a gente não apagar o mapa no caminho desse
+    # objeto
 
     # la a0, overworld_tilemap # a0 = tilemap address
     # la a1, overworld_gamemap # a1 = gamemap address
     # li a2, 0 # a2 = frame
-    # li a3, 0x00100000 # a3 = tile position
+    # li a3, 0x00200244 # a3 = tile position
     # li a4, 0x0 # a4 = camera position
     # jal ra, RENDER_BACKGROUND_TILES
 
@@ -85,6 +73,7 @@ GAME_LOOP:
     # Alterante frames
     # Do it on 0 while we are at 1,
     # Then do it at 1 while we are at 0
+
     xori s2, s2, 1
 
     # Loop over objects 
@@ -170,6 +159,21 @@ RUN_OBJECTS_LOOP:
     lw s10, 12(t0)
     # ============================================
 
+    # # ========== Figure object address ==========
+    # la t0, objects
+    # addi t0, t0, 4
+    # slli t1, s0, 4
+    # add t0, t0, t1
+    # # ===========================================
+
+    # =========== Execute user code ===========
+    mv a0, s7
+    mv a1, s8
+    mv a2, s10
+    mv a3, t0
+    jalr ra, s9, 0
+    # =========================================
+
     # =========== Render tiles ===========
     # Pra a gente não apagar o mapa no caminho desse
     # objeto
@@ -191,22 +195,24 @@ RUN_OBJECTS_LOOP:
     jal ra, RENDER_OBJECT
     # ======================================
 
-    # ========== Figure object address ==========
-    la t0, objects
-    addi t0, t0, 4
-    slli t1, s0, 4
-    add t0, t0, t1
-    # ===========================================
+    # # ========== Figure object address ==========
+    # la t0, objects
+    # addi t0, t0, 4
+    # slli t1, s0, 4
+    # add t0, t0, t1
+    # # ===========================================
 
-    # =========== Execute user code ===========
-    mv a0, s7
-    mv a1, s8
-    mv a2, s10
-    mv a3, t0
-    jalr ra, s9, 0
-    # =========================================
+    # # =========== Execute user code ===========
+    # mv a0, s7
+    # mv a1, s8
+    # mv a2, s10
+    # mv a3, t0
+    # jalr ra, s9, 0
+    # # =========================================
 
     addi s0, s0, 1
+
+    j RUN_OBJECTS_LOOP
 
 RUN_OBJECTS_END:
     lw ra, 44(sp)
