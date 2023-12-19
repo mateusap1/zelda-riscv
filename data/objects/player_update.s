@@ -68,6 +68,11 @@ PLAYER_MOVE_DOWN:
     jal ra, MOVE_DOWN
     # a0 is the new position
 
+    # If edge,
+    #   move camera down
+    #   change player position even further
+    #   rerender the map
+
     sw a0, 0(s3)
 
     j PLAYER_MOVE_END

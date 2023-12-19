@@ -425,7 +425,7 @@ RENDER_BACKGROUND_END:
 # s10 = offsetY
 
 RENDER_MAP:
-    addi sp, sp, -44
+    addi sp, sp, -48
     sw ra, 44(sp)
     sw s10, 40(sp)
     sw s9, 36(sp)
@@ -525,7 +525,7 @@ RENDER_MAP_LOOP_Y_END:
     lw s1, 4(sp)
     lw s0, 0(sp)
 
-    addi sp, sp, 44
+    addi sp, sp, 48
 
     jalr zero, ra, 0
 

@@ -37,45 +37,45 @@ SETUP:
     # s2 = Current frame
     # ==========================
 
-    li s0, 0x01400000
+    li s0, 0x00000000
     li s1, 0
     li s2, 0
 
-    # # =========== Render tiles ===========
-    # # Pra a gente não apagar o mapa no caminho desse
-    # # objeto
+    jal ra, START_MAP
 
-    # li a0, overworld_tilemap # a0 = tilemap address
-    # la a1, overworld_gamemap # a1 = gamemap address
-    # li a2, 0 # a2 = frame
-    # li a3, s7 # a3 = tile position
-    # mv a4, s3 # a4 = camera position
-    # jal ra, RENDER_BACKGROUND_TILES
-    # # ====================================
+GAME_LOOP:
+    la t0, CAMERA_POSITION
+    lw s0, 0(t0)
 
-    # j GAME_END
+    # Alterante frames
+    # Do it on 0 while we are at 1,
+    # Then do it at 1 while we are at 0
 
+    xori s2, s2, 1
 
-    # li a0, 0 # a0 = camera position x
-    # li a1, 0 # a1 = camera position y
-    # li a2, 0 # a2 = tile position x
-    # li a3, 0 # a3 = tile position y
-    # la a4, overworld_gamemap # a4 = gamemap address
-    # la a5, overworld_tilemap # a5 = tilemap address
-    # li a6, 0 # a6 = frame
-    # jal ra, RENDER_TILE
+    # Loop over objects 
+    mv a0, s1
+    mv a1, s0
+    mv a2, s2
+    jal ra, RUN_OBJECTS
 
-    # la a0, overworld_tilemap # a0 = tilemap address
-    # la a1, overworld_gamemap # a1 = gamemap address
-    # li a2, 0 # a2 = frame
-    # li a3, 0x00000044 # a3 = tile position
-    # li a4, 0x0 # a4 = camera position
-    # jal ra, RENDER_BACKGROUND_TILES
+    li t0, 0xFF200604
+    sb s2, 0(t0)
 
-    # j GAME_END
+    j GAME_LOOP
 
+GAME_END: j GAME_END
+
+# ========= START_MAP =========
 START_MAP:
-    # ============== Render map ==============
+    addi sp, sp, -4
+    sw ra, 0(sp)
+
+    la t0, CAMERA_POSITION
+    lw s0, 0(t0)
+
+    la t0, CURRENT_MAP
+    lb s1, 0(t0)
 
     mv a0, s0
     jal ra, GET_CAMERA_POSITIONS
@@ -97,30 +97,12 @@ START_MAP:
 
     jal ra, RENDER_MAP
 
-    j GAME_END
+    lw ra, 0(sp)
+    addi sp, sp, 4
 
-    # ========================================
+    jalr zero, ra, 0
 
-GAME_LOOP:
-
-    # Alterante frames
-    # Do it on 0 while we are at 1,
-    # Then do it at 1 while we are at 0
-
-    xori s2, s2, 1
-
-    # Loop over objects 
-    mv a0, s1
-    mv a1, s0
-    mv a2, s2
-    jal ra, RUN_OBJECTS
-
-    li t0, 0xFF200604
-    sb s2, 0(t0)
-
-    j GAME_LOOP
-
-GAME_END: j GAME_END
+# =============================
 
 # ================ RUN_OBJECTS ================
 
