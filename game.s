@@ -25,6 +25,9 @@
 # Objects
 .include "data/objects.s"
 
+CAMERA_POSITION: .word 0
+CURRENT_MAP: .byte 0
+
 .text
 
 SETUP:
@@ -34,7 +37,7 @@ SETUP:
     # s2 = Current frame
     # ==========================
 
-    li s0, 0x00000000
+    li s0, 0x01400000
     li s1, 0
     li s2, 0
 
@@ -94,9 +97,12 @@ START_MAP:
 
     jal ra, RENDER_MAP
 
+    j GAME_END
+
     # ========================================
 
 GAME_LOOP:
+
     # Alterante frames
     # Do it on 0 while we are at 1,
     # Then do it at 1 while we are at 0
@@ -104,8 +110,8 @@ GAME_LOOP:
     xori s2, s2, 1
 
     # Loop over objects 
-    la a0, objects
-    mv a1, s1
+    mv a0, s1
+    mv a1, s0
     mv a2, s2
     jal ra, RUN_OBJECTS
 

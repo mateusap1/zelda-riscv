@@ -409,15 +409,15 @@ RENDER_BACKGROUND_END:
 
 # a0 = map index => vai nos dar acesso ao tilemap e gamemap
 # a1 = frame (0 ou 1)
-# a2 = pos x do player
-# a3 = pos y do player
+# a2 = camera pos x
+# a3 = camera pos y
 
 # s0 = i (coord x do bitmap)
 # s1 = j (coord y do bitmap)
 # s2 = a0 = map index
 # s3 = a1 = frame
-# s4 = a2 = pos x do player
-# s5 = a3 = pos y do player
+# s4 = a2 = camera pos x
+# s5 = a3 = camera pos y
 # s6 = tilemap address
 # s7 = gamemap address
 # s8 = gamemap width
@@ -458,7 +458,7 @@ RENDER_MAP_LOOP_Y_START:
     mv s1, zero
 
 RENDER_MAP_LOOP_Y:
-    li t0, 240
+    li t0, 15
     bge s1, t0, RENDER_MAP_LOOP_Y_END
 
     # =========== RENDER_MAP_LOOP_Y_INNER ===========
@@ -467,38 +467,36 @@ RENDER_MAP_LOOP_Y:
         mv s0, zero
 
     RENDER_MAP_LOOP_X:
-        li t0, 320
+        li t0, 20
         bge s0, t0, RENDER_MAP_LOOP_X_END
 
         # =========== RENDER_MAP_LOOP_X_INNER ===========
 
+        # =============== RENDER_TILE ===============
+        # a0 = camera position x = s4
+        # a1 = camera position y = s5
+        # a2 = tile position x = s4 / 16 + i
+        # a3 = tile position y = s5 / 16 + j
+        # a4 = gamemap address = s7
+        # a5 = tilemap address = s6
+        # a6 = frame = s3
+
         mv a0, s4
         mv a1, s5
-        mv a2, s0
-        mv a3, s1
-        mv a4, s6
-        mv a5, s7
-        mv a6, s8
-        jal ra, FIND_GAMEMAP_TILE
 
-        mv t0, a0 # t0 = tile index
-        mv s9, a3 # t1 = offsetX
-        mv s10, a4 # t2 = offsetY
+        srli a2, s4, 4
+        add a2, a2, s0
 
-        mv a0, s6
-        mv a1, s0
-        mv a2, s1
-        mv a3, s3
-        mv a4, t0
-        mv a5, s9
-        mv a6, s10
+        srli a3, s5, 4
+        add a3, a3, s1
 
-        jal ra, PRINT_TILE
+        mv a4, s7
+        mv a5, s6
+        mv a6, s3
 
-        # Calcular index i da próxima iteração
-        li t0, 16
-        sub t0, t0, s9
-        add s0, s0, t0
+        jal ra, RENDER_TILE
+
+        addi s0, s0, 1
 
         j RENDER_MAP_LOOP_X
 
@@ -506,9 +504,7 @@ RENDER_MAP_LOOP_Y:
     
     RENDER_MAP_LOOP_X_END:
 
-    li t0, 16
-    sub t0, t0, s10
-    add s1, s1, t0
+    addi s1, s1, 1
 
     j RENDER_MAP_LOOP_Y
 
