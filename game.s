@@ -25,6 +25,8 @@
 # Objects
 .include "data/objects.s"
 
+.include "midi/startmidi.s"
+
 .text
 
 SETUP:
@@ -35,10 +37,15 @@ SETUP:
     # ==========================
 
     li s0, 0x00000000
-    li s1, 0
+    li s1, 3
     li s2, 0
 
+
 START_MAP:
+    li s0, 0x00000000
+    li s2, 0
+
+
     mv a0, s0
     jal ra, SPLIT_REGISTER
 
@@ -74,6 +81,41 @@ START_MAP:
     mv a3, t1
 
     jal ra, RENDER_MAP
+
+    li a1,3
+    bne s1,a1, GAME_LOOP
+
+RESET_MUSIC: 
+    la t4,startmidi  #endereco da musica
+    lw t3,0(t4)     # t3 = quantidade de notas 
+    addi t4,t4,4     #t4 = endereco da primeira nota 
+    mv t5,zero  #contador de notas
+    li a2,68		# define o instrumento
+    li a3,127		# define o volume
+
+LOOP_START_SCREEN:
+    #################   TELA INICIAL    ###########
+
+    beq t5,t3,RESET_MUSIC		#verifica se a musica acabou e reinicia
+	lw a0,0(t4)		# le o valor da nota
+	lw a1,4(t4)		# le a duracao da nota
+	li a7,31		# define a chamada de syscall
+	ecall			# toca a nota
+    li a7,32        
+    mv a0,a1
+    ecall           #pausa de a1 ms 
+	addi t5,t5,1	# incrementa o contador de notas
+	addi t4,t4,8    #incrementa nota
+
+
+    li t0, 0xFF200000 # t0 = endereço de controle do teclado
+	lw t1, 0(t0) # t1 = conteudo de t0
+	andi t2, t1, 1 # Mascara o primeiro bit (verifica sem tem tecla)
+	beqz t2, LOOP_START_SCREEN # Se tem tecla continua o jogo
+
+    ########### TRANSFERE PARA O JOGO   ###########
+	li s1,0
+    jal zero,START_MAP
 
 GAME_LOOP:
     # Alterante frames
