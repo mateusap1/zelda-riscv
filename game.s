@@ -32,9 +32,6 @@ SETUP:
     li s1, 0
     li s2, 0
 
-    # Pra a gente não apagar o mapa no caminho desse
-    # objeto
-
     # la a0, overworld_tilemap # a0 = tilemap address
     # la a1, overworld_gamemap # a1 = gamemap address
     # li a2, 0 # a2 = frame

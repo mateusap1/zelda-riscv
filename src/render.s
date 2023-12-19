@@ -355,7 +355,7 @@ RENDER_BACKGROUND_RIGHT_TILE:
     mv a3, s6 
     mv a4, s1
     mv a5, s0
-    mv s6, s2
+    mv a6, s2
     jal ra, RENDER_TILE
 
 RENDER_BACKGROUND_DOWN_TILE:
@@ -368,8 +368,9 @@ RENDER_BACKGROUND_DOWN_TILE:
     addi a3, s6, 1
     mv a4, s1
     mv a5, s0
-    mv s6, s2
+    mv a6, s2
     jal ra, RENDER_TILE
+
 
 RENDER_BACKGROUND_DIAGONAL_TILE:
     # If offest y == 0: skip
@@ -384,7 +385,7 @@ RENDER_BACKGROUND_DIAGONAL_TILE:
     addi a3, s6, 1
     mv a4, s1
     mv a5, s0
-    mv s6, s2
+    mv a6, s2
     jal ra, RENDER_TILE
 
 RENDER_BACKGROUND_END:
