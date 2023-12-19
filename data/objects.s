@@ -20,7 +20,7 @@ objects:
 
 # [3]:
 
-# Speed: 4 - 0000,1000
+# Speed: 4 - 0000,0100
 # Inventory: 0 - 0000,0000
 # Current Animation: 0 - 0000
 # Animation Index: 0 - 0000

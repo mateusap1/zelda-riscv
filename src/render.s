@@ -2,7 +2,9 @@
 # GET_OBJECT_RENDER_COORDS
 # GET_TILE_RENDER_COORDS
 # GET_TILE_INDEX
+# GET_OBJECT_SPRITE_TILEMAP
 # RENDER_OBJECT
+# RENDER_TILE
 # RENDER_BACKGROUND_TILES
 # RENDER_MAP
 # FIND_GAMEMAP_TILE
@@ -126,8 +128,10 @@ GET_TILE_INDEX:
 # a2 = animation step index
 
 GET_OBJECT_SPRITE_TILEMAP:
-    lw a0, 4(a0) # Skip size
-    add a0, a0, a1
+    slli t1, a1, 2
+    add t2, a0, t1
+
+    lw a0, 4(t2) # Skip size
 
     jalr zero, ra, 0
 # =======================================
@@ -170,7 +174,7 @@ RENDER_OBJECT:
     mv s3, a3
     mv s4, a4
 
-    mv a0, s0
+    mv a0, s2
     jal ra, GET_OBJECT_INFO
     mv s5, a2
     mv s6, a3
@@ -181,9 +185,7 @@ RENDER_OBJECT:
     jal ra, GET_OBJECT_SPRITE_TILEMAP
     mv s7, a0
 
-    # mv a0, s7
-    # li a7, 1
-    # ecall
+    # li s6, 0
 
     mv a0, s3
     mv a1, s0
@@ -216,17 +218,109 @@ RENDER_OBJECT:
     jalr zero, ra, 0
 # ===================================
 
+# =============== RENDER_TILE ===============
+# a0 = camera position x
+# a1 = camera position y
+# a2 = tile position x
+# a3 = tile position y
+# a4 = gamemap address
+# a5 = tilemap address
+# a6 = frame
+RENDER_TILE:
+    addi sp, sp, -4
+    sw ra, 0(sp)
+
+    # First calculate offset x and y
+    li t0, 16
+    rem t0, a0, t0
+
+    li t1, 16
+    rem t1, a1, t1
+
+    slli t2, a2, 4
+    sub t2, t2, a0
+
+    bge t2, zero, RENDER_TILE_NOT_ZERO_X
+    mv t2, zero
+RENDER_TILE_NOT_ZERO_X:
+    slli t3, a3, 4
+    sub t3, t3, a1
+
+    bge t3, zero, RENDER_TILE_NOT_ZERO_Y
+    mv t3, zero
+RENDER_TILE_NOT_ZERO_Y:
+
+    # Find tile
+    li t4, 20
+    mul t4, a3, t4 # tile pos y * gamemap width
+    add t4, t4, a4
+    add t4, t4, a2
+
+    lb t4, 8(t4) # the tile index
+
+    # If render position x is not zero and not
+    # greater than 304, we change it to zero
+
+    li t5, 304
+    bgt t0, t5, RENDER_TILE_OFFSET_X_NOT_ZERO
+    beq t0, zero, RENDER_TILE_OFFSET_X_NOT_ZERO
+    mv t0, zero
+RENDER_TILE_OFFSET_X_NOT_ZERO:
+
+    li t5, 224
+    bgt t1, t5, RENDER_TILE_OFFSET_Y_NOT_ZERO
+    beq t1, zero, RENDER_TILE_OFFSET_Y_NOT_ZERO
+    mv t1, zero
+RENDER_TILE_OFFSET_Y_NOT_ZERO:
+
+    # a0 = endereço tilemap
+    # a1 = render position x
+    # a2 = render position y
+    # a3 = frame (0 ou 1)
+    # a4 = tile index
+    # a5 = tile offset x
+    # a6 = tile offset y
+
+    mv a0, a5
+    mv a1, t2
+    mv a2, t3
+    mv a3, a6
+    mv a4, t4
+    mv a5, t0
+    mv a6, t1
+    jal ra, PRINT_TILE
+
+    lw ra, 0(sp)
+    addi sp, sp, 4
+
+    jalr zero, ra, 0
+# ===========================================
+
 # ================ RENDER_BACKGROUND_TILES ================
 
 # a0 = tilemap address
 # a1 = gamemap address
-# a2 = tile position
-# a3 = camera position
-# a4 = frame
+# a2 = frame
+# a3 = tile position
+# a4 = camera position
+
+# s0 = a0 = tilemap address
+# s1 = a1 = gamemap address
+# s2 = a2 = frame
+# s3 = cam position x
+# s4 = cam position y
+# s5 = tile position x
+# s6 = tile position y
+# s7 = offset x
+# s8 = offset y
 
 RENDER_BACKGROUND_TILES:
-    addi sp, sp, -24
-    sw ra, 20(sp)
+    addi sp, sp, -40
+    sw ra, 36(sp)
+    sw s8, 32(sp)
+    sw s7, 28(sp)
+    sw s6, 24(sp)
+    sw s5, 20(sp)
     sw s4, 16(sp)
     sw s3, 12(sp)
     sw s2, 8(sp)
@@ -236,113 +330,74 @@ RENDER_BACKGROUND_TILES:
     mv s0, a0
     mv s1, a1
     mv s2, a2
-    mv s3, a3
-    mv s4, a4
 
-    slli s8, s2, 4
+    # Find out camera position
+    mv a0, a4
+    jal ra, GET_CAMERA_POSITIONS
+    mv s3, a0
+    mv s4, a1
     
-    li t0, 320
-    remu s8, s8, t0
-
-    slli s9, s3, 4
-
-    li t0, 240
-    remu s9, s9, t0
+    mv a0, a3
+    jal ra, GET_CAMERA_POSITIONS
+    mv s5, a0
+    mv s6, a1
+    mv s7, a2
+    mv s8, a3
 
 RENDER_BACKGROUND_CURRENT_TILE:
-    # a0 = endereço tilemap
-    # a1 = render position x
-    # a2 = render position y
-    # a3 = frame (0 ou 1)
-    # a4 = tile index
-    # a5 = tile offset x
-    # a6 = tile offset y
-
-    # GET_OBJECT_POS
-    # GET_TILE_INDEX
-
-    mv a0, s0
-    mv a1, s8
-    mv a2, s9
-    mv a3, s6
-
-    mul a4, s7, s2 # gamemap.width * tileposy
-
-    add a4, a4, s3 # += tileposx
-    addi a4, a4, 8
-
-    li a5, 0
-    li a6, 0
-
-    jal ra, PRINT_TILE
+    mv a0, s3
+    mv a1, s4 
+    mv a2, s5  
+    mv a3, s6 
+    mv a4, s1
+    mv a5, s0
+    mv s6, s2
+    jal ra, RENDER_TILE
 
 RENDER_BACKGROUND_RIGHT_TILE:
     # If offest x > 0: render right tile
-    beq s4, zero, RENDER_BACKGROUND_DOWN_TILE
+    beq s7, zero, RENDER_BACKGROUND_DOWN_TILE
 
-    mv a0, s0
-    addi a1, s8, 16
-    mv a2, s9
-    mv a3, s6
-
-    addi t0, s2, 1
-    mul a4, s7, t0 # gamemap.width * tileposy
-
-    add a4, a4, s3 # += tileposx
-    addi a4, a4, 8
-
-    li a5, 0
-    li a6, 0
-
-    jal ra, PRINT_TILE
+    mv a0, s3
+    mv a1, s4 
+    addi a2, s5, 1
+    mv a3, s6 
+    mv a4, s1
+    mv a5, s0
+    mv s6, s2
+    jal ra, RENDER_TILE
 
 RENDER_BACKGROUND_DOWN_TILE:
     # If offest y > 0: render right tile
-    beq s5, zero, RENDER_BACKGROUND_END
+    beq s8, zero, RENDER_BACKGROUND_END
 
-    mv a0, s0
-    mv a1, s8
-    addi a2, s9, 16
-    mv a3, s6
-
-    mul a4, s7, s2 # gamemap.width * tileposy
-
-    addi t0, s3, 1
-    add a4, a4, t0 # += tileposx
-    addi a4, a4, 8
-
-    li a5, 0
-    li a6, 0
-
-    jal ra, PRINT_TILE
+    mv a0, s3
+    mv a1, s4 
+    mv a2, s5
+    addi a3, s6, 1
+    mv a4, s1
+    mv a5, s0
+    mv s6, s2
+    jal ra, RENDER_TILE
 
 RENDER_BACKGROUND_DIAGONAL_TILE:
     # If offest y == 0: skip
-    beq s5, zero, RENDER_BACKGROUND_END
+    beq s8, zero, RENDER_BACKGROUND_END
 
     # If offest x == 0: skip
-    beq s4, zero, RENDER_BACKGROUND_END
+    beq s7, zero, RENDER_BACKGROUND_END
 
-    mv a0, s0
-    addi a1, s8, 16
-    addi a2, s9, 16
-    mv a3, s6
-
-    addi t0, s2, 1
-    mul a4, s7, t0 # gamemap.width * tileposy
-
-    addi t0, s3, 1
-    add a4, a4, t0 # += tileposx
-    addi a4, a4, 8
-
-    li a5, 0
-    li a6, 0
-
-    jal ra, PRINT_TILE
+    mv a0, s3
+    mv a1, s4 
+    addi a2, s5, 1
+    addi a3, s6, 1
+    mv a4, s1
+    mv a5, s0
+    mv s6, s2
+    jal ra, RENDER_TILE
 
 RENDER_BACKGROUND_END:
-    lw ra, 40(sp)
-    lw s9, 36(sp)
+    lw ra, 36(sp)
     lw s8, 32(sp)
     lw s7, 28(sp)
     lw s6, 24(sp)
@@ -352,8 +407,7 @@ RENDER_BACKGROUND_END:
     lw s2, 8(sp)
     lw s1, 4(sp)
     lw s0, 0(sp)
-
-    addi sp, sp, 44
+    addi sp, sp, 40
 
     jalr zero, ra, 0
 

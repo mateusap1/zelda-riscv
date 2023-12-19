@@ -38,31 +38,15 @@ START_MAP:
     mv a0, s0
     jal ra, GET_CAMERA_POSITIONS
 
-    li t2, 320
-    mul t0, a0, t2
-    addi t0, t0, 160
-
-    li t2, 240
-    mul t1, a1, t2
-    addi t1, t1, 120
-
     mv a0, s1
     li a1, 0
-    mv a2, t0
-    mv a3, t1
+    mv a2, a0
+    mv a3, a1
 
     jal ra, RENDER_MAP
 
     mv a0, s0
     jal ra, GET_CAMERA_POSITIONS
-
-    li t2, 320
-    mul t0, a0, t2
-    addi t0, t0, 160
-
-    li t2, 240
-    mul t1, a1, t2
-    addi t1, t1, 120
 
     mv a0, s1
     li a1, 1
@@ -70,25 +54,6 @@ START_MAP:
     mv a3, t1
 
     jal ra, RENDER_MAP
-
-    # # ========== DEBUG ==========
-    # a0 = endereço tilemap
-    # a1 = render position x
-    # a2 = render position y
-    # a3 = frame (0 ou 1)
-    # a4 = tile index
-    # a5 = tile offset x
-    # a6 = tile offset y
-
-    la a0, overworld_tilemap
-    li a1, 16
-    li a2, 16
-    li a3, 0
-    li a4, 20
-    li a5, 0
-    li a6, 0
-    jal ra, PRINT_TILE
-    # # =======================================
 
     # ========================================
 
@@ -170,6 +135,7 @@ RUN_OBJECTS_LOOP:
 
         # ========== Figure object address ==========
         la t0, objects
+        addi t0, t0, 4
         slli t1, s0, 4
         add t0, t0, t1
         # ===========================================
@@ -180,17 +146,17 @@ RUN_OBJECTS_LOOP:
     lw s10, 12(t0)
     # ============================================
 
-    # # =========== Render tiles ===========
-    # # Pra a gente não apagar o mapa no caminho desse
-    # # objeto
+    # =========== Render tiles ===========
+    # Pra a gente não apagar o mapa no caminho desse
+    # objeto
 
-    # mv a0, s5 # a0 = tilemap address
-    # mv a1, s6 # a1 = gamemap address
-    # mv a2, s7 # a2 = tile position
-    # mv a3, s3 # a3 = camera position
-    # mv a4, s4 # a4 = frame
-    # jal ra, RENDER_BACKGROUND_TILES
-    # # ====================================
+    mv a0, s5 # a0 = tilemap address
+    mv a1, s6 # a1 = gamemap address
+    mv a2, s4 # a2 = frame
+    mv a3, s7 # a3 = tile position
+    mv a4, s3 # a4 = camera position
+    jal ra, RENDER_BACKGROUND_TILES
+    # ====================================
 
     # ====== Print current sprite ======
     mv a0, s7 # a0 = object position - Objects[i][0]
@@ -201,13 +167,20 @@ RUN_OBJECTS_LOOP:
     jal ra, RENDER_OBJECT
     # ======================================
 
-    # # =========== Execute user code ===========
-    # mv a0, s2
-    # mv a1, s3
-    # mv a2, s4
-    # mv a3, t0
-    # jalr ra, t1, 0
-    # # =========================================
+    # ========== Figure object address ==========
+    la t0, objects
+    addi t0, t0, 4
+    slli t1, s0, 4
+    add t0, t0, t1
+    # ===========================================
+
+    # =========== Execute user code ===========
+    mv a0, s7
+    mv a1, s8
+    mv a2, s10
+    mv a3, t0
+    jalr ra, s9, 0
+    # =========================================
 
     addi s0, s0, 1
 
