@@ -251,7 +251,7 @@ RENDER_TILE_NOT_ZERO_X:
 RENDER_TILE_NOT_ZERO_Y:
 
     # Find tile
-    li t4, 20
+    lw t4, 0(a4)
     mul t4, a3, t4 # tile pos y * gamemap width
     add t4, t4, a4
     add t4, t4, a2
@@ -379,13 +379,13 @@ RENDER_BACKGROUND_DIAGONAL_TILE:
     # If offest x == 0: skip
     beq s7, zero, RENDER_BACKGROUND_END
 
-    mv a0, s3
-    mv a1, s4 
-    addi a2, s5, 1
-    addi a3, s6, 1
-    mv a4, s1
-    mv a5, s0
-    mv a6, s2
+    mv a0, s3 # a0 = camera position x
+    mv a1, s4 # a1 = camera position y
+    addi a2, s5, 1 # a2 = tile position x
+    addi a3, s6, 1 # a3 = tile position y
+    mv a4, s1 # a4 = gamemap address
+    mv a5, s0 # a5 = tilemap address
+    mv a6, s2 # a6 = frame
     jal ra, RENDER_TILE
 
 RENDER_BACKGROUND_END:

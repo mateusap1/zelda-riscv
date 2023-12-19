@@ -32,10 +32,19 @@ SETUP:
     li s1, 0
     li s2, 0
 
+    # li a0, 0 # a0 = camera position x
+    # li a1, 0 # a1 = camera position y
+    # li a2, 0 # a2 = tile position x
+    # li a3, 0 # a3 = tile position y
+    # la a4, overworld_gamemap # a4 = gamemap address
+    # la a5, overworld_tilemap # a5 = tilemap address
+    # li a6, 0 # a6 = frame
+    # jal ra, RENDER_TILE
+
     # la a0, overworld_tilemap # a0 = tilemap address
     # la a1, overworld_gamemap # a1 = gamemap address
     # li a2, 0 # a2 = frame
-    # li a3, 0x00200244 # a3 = tile position
+    # li a3, 0x00000044 # a3 = tile position
     # li a4, 0x0 # a4 = camera position
     # jal ra, RENDER_BACKGROUND_TILES
 
