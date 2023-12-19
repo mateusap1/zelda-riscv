@@ -4,7 +4,7 @@
 # GET_CAMERA_POSITIONS
 # MOVE_RIGHT
 # MOVE_LEFT
-# MOIVE_UP
+# MOVE_UP
 # MOVE_DOWN
 # =========================
 

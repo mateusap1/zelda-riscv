@@ -3,9 +3,15 @@
 # Gamemaps
 .include "data/maps/gamemap/overworld_gamemap.s"
 .include "data/maps/gamemap/underworld_gamemap.s"
+.include "data/maps/gamemap/areasecreta_gamemap.s"
+.include "data/maps/gamemap/masmorra_gamemap.s"
+.include "data/maps/gamemap/telainicial_gamemap.s"
 
 # Tilemaps
 .include "data/maps/tilemap/overworld_tilemap.s"
+.include "data/maps/tilemap/masmorra_tilemap.s"
+.include "data/maps/tilemap/areasecreta_tilemap.s"
+.include "data/maps/tilemap/telainicial_tilemap.s"
 
 # Map
 .include "data/maps.s"
@@ -28,9 +34,24 @@ SETUP:
     # s2 = Current frame
     # ==========================
 
-    li s0, 0x0
+    li s0, 0x00000000
     li s1, 0
     li s2, 0
+
+    # # =========== Render tiles ===========
+    # # Pra a gente não apagar o mapa no caminho desse
+    # # objeto
+
+    # li a0, overworld_tilemap # a0 = tilemap address
+    # la a1, overworld_gamemap # a1 = gamemap address
+    # li a2, 0 # a2 = frame
+    # li a3, s7 # a3 = tile position
+    # mv a4, s3 # a4 = camera position
+    # jal ra, RENDER_BACKGROUND_TILES
+    # # ====================================
+
+    # j GAME_END
+
 
     # li a0, 0 # a0 = camera position x
     # li a1, 0 # a1 = camera position y
@@ -56,20 +77,20 @@ START_MAP:
     mv a0, s0
     jal ra, GET_CAMERA_POSITIONS
 
-    mv a0, s1
-    li a1, 0
     mv a2, a0
     mv a3, a1
+    mv a0, s1
+    li a1, 0
 
     jal ra, RENDER_MAP
 
     mv a0, s0
     jal ra, GET_CAMERA_POSITIONS
 
+    mv a2, a0
+    mv a3, a1
     mv a0, s1
     li a1, 1
-    mv a2, t0
-    mv a3, t1
 
     jal ra, RENDER_MAP
 
