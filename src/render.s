@@ -338,7 +338,7 @@ RENDER_BACKGROUND_TILES:
     mv s4, a1
     
     mv a0, a3
-    jal ra, GET_CAMERA_POSITIONS
+    jal ra, GET_OBJECT_POS
     mv s5, a0
     mv s6, a1
     mv s7, a2

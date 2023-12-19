@@ -73,14 +73,6 @@ PLAYER_MOVE_DOWN:
     j PLAYER_MOVE_END
 
 PLAYER_MOVE_RIGHT:
-    # mv a0, s0
-    # li a7, 34
-    # ecall
-
-    # li a0, ' '
-    # li a7, 11
-    # ecall
-
     # First get speed
     mv a0, s2
     jal ra, GET_OBJECT_INFO
@@ -92,14 +84,6 @@ PLAYER_MOVE_RIGHT:
     # a0 is the new position
 
     sw a0, 0(s3)
-
-    # mv a0, a0 
-    # li a7, 34
-    # ecall
-
-    # li a0, '\n'
-    # li a7, 11
-    # ecall
 
     j PLAYER_MOVE_END
 
@@ -117,20 +101,6 @@ PLAYER_MOVE_LEFT:
     sw a0, 0(s3)
 
     j PLAYER_MOVE_END
-
-# PLAYER_MOVE_UPDATE:
-#     add t4, zero, t3
-
-#     slli t2, t2, 4
-#     add t4, t4, t2
-
-#     slli t1, t1, 8
-#     add t4, t4, t1
-
-#     slli t0, t0, 20
-#     add t4, t4, t0
-
-#     sw t4, 0(a3)
 
 PLAYER_MOVE_END:
     lw s3, 16(sp)

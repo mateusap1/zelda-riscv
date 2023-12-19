@@ -47,6 +47,15 @@ SETUP:
 
     # j GAME_END
 
+    # la a0, overworld_tilemap # a0 = tilemap address
+    # la a1, overworld_gamemap # a1 = gamemap address
+    # li a2, 0 # a2 = frame
+    # li a3, 0x00100000 # a3 = tile position
+    # li a4, 0x0 # a4 = camera position
+    # jal ra, RENDER_BACKGROUND_TILES
+
+    # j GAME_END
+
 START_MAP:
     # ============== Render map ==============
 
@@ -162,15 +171,15 @@ RUN_OBJECTS_LOOP:
     # ============================================
 
     # =========== Render tiles ===========
-    # # Pra a gente não apagar o mapa no caminho desse
-    # # objeto
+    # Pra a gente não apagar o mapa no caminho desse
+    # objeto
 
-    # mv a0, s5 # a0 = tilemap address
-    # mv a1, s6 # a1 = gamemap address
-    # mv a2, s4 # a2 = frame
-    # mv a3, s7 # a3 = tile position
-    # mv a4, s3 # a4 = camera position
-    # jal ra, RENDER_BACKGROUND_TILES
+    mv a0, s5 # a0 = tilemap address
+    mv a1, s6 # a1 = gamemap address
+    mv a2, s4 # a2 = frame
+    mv a3, s7 # a3 = tile position
+    mv a4, s3 # a4 = camera position
+    jal ra, RENDER_BACKGROUND_TILES
     # ====================================
 
     # ====== Print current sprite ======
