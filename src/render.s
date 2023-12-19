@@ -46,11 +46,11 @@ GET_OBJECT_RENDER_COORDS:
     # a2 = Tile Offset X
     # a3 = Tile Offset Y
 
-    srli t0, a0, 4 # t0 = tilePosX * 16
+    slli t0, a0, 4 # t0 = tilePosX * 16
     sub t0, t0, s1 # t0 = tilePosX * 16 - camPosX
-    add t0, t0, a3 # Render coord x = t0 + playerOffsetX
+    add t0, t0, a2 # Render coord x = t0 + playerOffsetX
 
-    srli t1, a1, 4 # t1 = tilePosY * 16
+    slli t1, a1, 4 # t1 = tilePosY * 16
     sub t1, t1, s2  # t1 = tilePosY * 16 - camPosY
     add t1, t1, a3 # Render coord y = t0 + playerOffsetY
 

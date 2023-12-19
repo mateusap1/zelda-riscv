@@ -43,12 +43,44 @@ PLAYER_UPDATE_KEYPOLL:
     j PLAYER_MOVE_END
 
 PLAYER_MOVE_UP:
+    # First get speed
+    mv a0, s2
+    jal ra, GET_OBJECT_INFO
+    # a0 is the speed
+
+    mv a1, a0
+    mv a0, s0
+    jal ra, MOVE_UP
+    # a0 is the new position
+
+    sw a0, 0(s3)
+
     j PLAYER_MOVE_END
 
 PLAYER_MOVE_DOWN:
+    # First get speed
+    mv a0, s2
+    jal ra, GET_OBJECT_INFO
+    # a0 is the speed
+
+    mv a1, a0
+    mv a0, s0
+    jal ra, MOVE_DOWN
+    # a0 is the new position
+
+    sw a0, 0(s3)
+
     j PLAYER_MOVE_END
 
 PLAYER_MOVE_RIGHT:
+    # mv a0, s0
+    # li a7, 34
+    # ecall
+
+    # li a0, ' '
+    # li a7, 11
+    # ecall
+
     # First get speed
     mv a0, s2
     jal ra, GET_OBJECT_INFO
@@ -60,9 +92,30 @@ PLAYER_MOVE_RIGHT:
     # a0 is the new position
 
     sw a0, 0(s3)
+
+    # mv a0, a0 
+    # li a7, 34
+    # ecall
+
+    # li a0, '\n'
+    # li a7, 11
+    # ecall
+
     j PLAYER_MOVE_END
 
 PLAYER_MOVE_LEFT:
+    # First get speed
+    mv a0, s2
+    jal ra, GET_OBJECT_INFO
+    # a0 is the speed
+
+    mv a1, a0
+    mv a0, s0
+    jal ra, MOVE_LEFT
+    # a0 is the new position
+
+    sw a0, 0(s3)
+
     j PLAYER_MOVE_END
 
 # PLAYER_MOVE_UPDATE:

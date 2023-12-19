@@ -32,6 +32,21 @@ SETUP:
     li s1, 0
     li s2, 0
 
+    # a0 = object position - Objects[i][0]
+    # a1 = object animation address - Objects[i][1]
+    # a2 = object info - Objects[1][2]
+    # a3 = camera position
+    # a4 = frame
+
+    # li a0, 0x00000040
+    # la a1, player_animation
+    # li a2, 0x04000034
+    # li a3, 0x0
+    # li a4, 0
+    # jal ra, RENDER_OBJECT
+
+    # j GAME_END
+
 START_MAP:
     # ============== Render map ==============
 
@@ -147,15 +162,15 @@ RUN_OBJECTS_LOOP:
     # ============================================
 
     # =========== Render tiles ===========
-    # Pra a gente não apagar o mapa no caminho desse
-    # objeto
+    # # Pra a gente não apagar o mapa no caminho desse
+    # # objeto
 
-    mv a0, s5 # a0 = tilemap address
-    mv a1, s6 # a1 = gamemap address
-    mv a2, s4 # a2 = frame
-    mv a3, s7 # a3 = tile position
-    mv a4, s3 # a4 = camera position
-    jal ra, RENDER_BACKGROUND_TILES
+    # mv a0, s5 # a0 = tilemap address
+    # mv a1, s6 # a1 = gamemap address
+    # mv a2, s4 # a2 = frame
+    # mv a3, s7 # a3 = tile position
+    # mv a4, s3 # a4 = camera position
+    # jal ra, RENDER_BACKGROUND_TILES
     # ====================================
 
     # ====== Print current sprite ======
