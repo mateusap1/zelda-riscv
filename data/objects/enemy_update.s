@@ -51,6 +51,10 @@ ENEMY_UPDATE:
     mv a0, s2
     jal ra, GET_OBJECT_INFO
 
+    # If he is not invisible, skip
+    li t0, 15
+    bne a2, t0, SKIP_MAKE_ENEMY_VISIBLE
+
     li t0, 0
 
     slli a0, a0, 24
@@ -66,20 +70,17 @@ ENEMY_UPDATE:
 
     sw t0, 12(s3)
 
-    # lw a0, 12(s3)
-    # li a7, 34
-    # ecall
+    lw a0, 12(s3)
+    li a7, 34
+    ecall
 
-    # j ENEMY_SKIP
+    j ENEMY_SKIP
 
 SKIP_MAKE_ENEMY_VISIBLE:
 
     # If enemy is invisible skip
     mv a0, s2
     jal ra, GET_OBJECT_INFO    
-
-    li t0, 15 # invisible animation index
-    beq a2, t0, ENEMY_SKIP
 
     # Only move 16 in 16 frames
     la t0, CURRENT_FRAME
@@ -178,7 +179,7 @@ ENEMY_MOVE_RIGHT:
     # li a2, 100000
     mv a0, s0
     li a1, 1
-    li a2, 100000
+    li a2, 10
     jal ra, MOVE_RIGHT
 
     sw a0, 0(s3)

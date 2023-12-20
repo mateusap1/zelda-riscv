@@ -71,10 +71,10 @@ LOOP_START_SCREEN:
 	lw a0,0(t4)		# le o valor da nota
 	lw a1,4(t4)		# le a duracao da nota
 	li a7,31		# define a chamada de syscall
-	ecall			# toca a nota
+	# ecall			# toca a nota
     li a7,32        
     mv a0,a1
-    ecall           #pausa de a1 ms 
+    # ecall           #pausa de a1 ms 
 	addi t5,t5,1	# incrementa o contador de notas
 	addi t4,t4,8    #incrementa nota
 

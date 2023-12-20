@@ -33,7 +33,7 @@ li a2,120		# define o instrumento
     li a0,100		# le o valor da nota
 	li a1,250		# le a duracao da nota
     li a7,31
-    ecall
+    # ecall
 
 
 	lw t1, 4(t0) # t1 = conteudo da tecla 
