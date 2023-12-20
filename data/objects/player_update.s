@@ -26,6 +26,14 @@ PLAYER_UPDATE_KEYPOLL:
 	lw t1, 0(t0) # t1 = conteudo de t0
 	andi t2, t1, 1 # Mascara o primeiro bit (verifica sem tem tecla)
 	beqz t2, PLAYER_KEYPOLL_END # Se não tem tecla, então continua o jogo
+
+    li a2,120		# define o instrumento
+    li a3,150		# define o volume
+    li a0,100		# le o valor da nota
+	li a1,250		# le a duracao da nota
+    li a7,31
+    ecall
+
 	lw t1, 4(t0) # t1 = conteudo da tecla 
 
 	li t0, 'w'
