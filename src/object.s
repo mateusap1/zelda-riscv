@@ -100,6 +100,7 @@ GET_CAMERA_POSITIONS:
 # =========== MOVE_RIGHT ===========
 # a0 = position
 # a1 = speed
+# a2 = edge value
 
 # Returns
 # a0 = new position
@@ -110,6 +111,8 @@ MOVE_RIGHT:
 
     mv a7, a1 # save speed as a7
     li a6, 0 # This will indicate if we got to the edge
+
+    mv a5, a2
 
     # We break this position down
     mv a0, a0
@@ -127,8 +130,7 @@ MOVE_RIGHT_OFFSET:
     div t0, a7, t0
     add a0, a0, t0
 
-    li t0, 19
-    bge a0, t0, MOVE_RIGHT_EDGE
+    bge a0, a5, MOVE_RIGHT_EDGE
 
     li t0, 16
     blt a2, t0, MOVE_RIGHT_END
@@ -142,15 +144,14 @@ MOVE_RIGHT_OFFSET_OVERFLOW:
     sub a2, a2, t0
     addi a0, a0, 1
 
-    li t0, 19
-    blt a0, t0, MOVE_RIGHT_END
+    blt a0, a5, MOVE_RIGHT_END
 
 MOVE_RIGHT_EDGE:
     # Se posX >= 19,
     #   offsetX = 0;
     #   posX = 19;
 
-    li a0, 19
+    mv a0, a5
     mv a2, zero
     li a6, 1
 

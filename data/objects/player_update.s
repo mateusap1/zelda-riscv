@@ -67,13 +67,11 @@ PLAYER_MOVE_DOWN:
     mv a0, s0
     jal ra, MOVE_DOWN
     # a0 is the new position
-
-    # If edge,
-    #   move camera down
-    #   change player position even further
-    #   rerender the map
+    # a1 is whether we are in the edge
 
     sw a0, 0(s3)
+
+PLAYER_MOVE_DOWN_SKIP_CAMERA_MOVEMENT:
 
     j PLAYER_MOVE_END
 
@@ -83,12 +81,87 @@ PLAYER_MOVE_RIGHT:
     jal ra, GET_OBJECT_INFO
     # a0 is the speed
 
-    mv a1, a0
+    mv a6, a0
+
+    la t0, CAMERA_POSITION
+    lw t0, 0(t0)
+
+    # Split camera position
+    mv a0, t0
+    jal ra, GET_CAMERA_POSITIONS
+
+    addi t0, a0, 320
+    srli t0, t0, 4
+    addi t0, t0, -1
+
+    mv a2, t0
+    mv a1, a6
     mv a0, s0
     jal ra, MOVE_RIGHT
     # a0 is the new position
 
     sw a0, 0(s3)
+
+    # Get current map index, then get gamemap width,
+    # so that we know what is the limit
+    la t2, CURRENT_MAP
+    lw t2, 0(t2)
+
+    beq a1, zero, PLAYER_MOVE_RIGHT_SKIP_CAMERA_MOVEMENT
+
+    # Get player position broken down
+    mv a0, a0
+    jal ra, GET_OBJECT_POS
+
+    la t0, maps # t0 = maps address
+    addi t0, t0, 4 # skip maps num
+    slli t1, t2, 3 # multiply index by 8
+    add t0, t0, t1 # maps address + 4 + map_index * 8
+
+    lw t0, 4(t0) # Endereço gamemap
+    lw t0, 0(t0) # Largura gamemap
+    addi t0, t0, -1
+
+    # Se a nossa posiçao x é maior que o limite, para
+    bge a0, t0, PLAYER_MOVE_RIGHT_SKIP_CAMERA_MOVEMENT
+
+    # Change player position
+    addi a0, a0, 1
+
+    # Join them together
+    slli a0, a0, 20
+    slli a1, a1, 8
+    slli a2, a2, 4
+
+    or t0, zero, a0
+    or t0, t0, a1
+    or t0, t0, a2
+    or t0, t0, a3
+
+    # Save it
+    sw t0, 0(s3)
+
+    # Break down camera position
+    la t0, CAMERA_POSITION
+    lw t0, 0(t0)
+
+    mv a0, t0
+    jal ra, GET_CAMERA_POSITIONS
+
+    addi a0, a0, 320
+
+    # Join them together
+    slli a0, a0, 16
+    or t0, a0, a1
+
+    li t0, 0x01400000
+
+    la t1, CAMERA_POSITION
+    sw t0, 0(t1)
+
+    jal ra, START_MAP
+
+PLAYER_MOVE_RIGHT_SKIP_CAMERA_MOVEMENT:
 
     j PLAYER_MOVE_END
 
