@@ -29,6 +29,7 @@
 
 CAMERA_POSITION: .word 0
 CURRENT_MAP: .byte 0
+CURRENT_FRAME: .word 0
 
 .text
 
@@ -63,6 +64,11 @@ GAME_LOOP:
 
     li t0, 0xFF200604
     sb s2, 0(t0)
+
+    la t0, CURRENT_FRAME
+    lw t1, 0(t0)
+    addi t1, t1, 1
+    sw t1, 0(t0)
 
     j GAME_LOOP
 
@@ -246,7 +252,7 @@ RUN_OBJECTS_LOOP_SKIP_DESTROY_OBJECT:
     lw s9, 8(t0)
     lw s10, 12(t0)
     # ============================================
-    
+
     # ===========================================
 
     # Animation 15 means object is not present

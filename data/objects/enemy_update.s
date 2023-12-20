@@ -21,9 +21,7 @@ ENEMY_UPDATE:
     lb t0, 0(t0)
 
     li t1, 2
-    bne t0, t1, SKIP_MAKE_ENEMY_VISIBLE
-
-    # j SKIP_MAKE_ENEMY_VISIBLE
+    bne t0, t1, ENEMY_SKIP
 
     # If camera is not here, skip
     mv a0, s0
@@ -41,14 +39,14 @@ ENEMY_UPDATE:
     slli a6, a6, 4
     slli a7, a7, 4
 
-    blt a6, a0, SKIP_MAKE_ENEMY_VISIBLE
-    blt a7, a1, SKIP_MAKE_ENEMY_VISIBLE
+    blt a6, a0, ENEMY_SKIP
+    blt a7, a1, ENEMY_SKIP
 
     addi a0, a0, 320
     addi a1, a1, 240
 
-    bgt a6, a0, SKIP_MAKE_ENEMY_VISIBLE
-    bgt a7, a1, SKIP_MAKE_ENEMY_VISIBLE
+    bgt a6, a0, ENEMY_SKIP
+    bgt a7, a1, ENEMY_SKIP
 
     mv a0, s2
     jal ra, GET_OBJECT_INFO
@@ -72,7 +70,7 @@ ENEMY_UPDATE:
     # li a7, 34
     # ecall
 
-    j ENEMY_SKIP
+    # j ENEMY_SKIP
 
 SKIP_MAKE_ENEMY_VISIBLE:
 
@@ -80,29 +78,35 @@ SKIP_MAKE_ENEMY_VISIBLE:
     mv a0, s2
     jal ra, GET_OBJECT_INFO    
 
-    li t0, 0 # invisible animation index
-    beq s2, t0, ENEMY_SKIP
+    li t0, 15 # invisible animation index
+    beq a2, t0, ENEMY_SKIP
 
-    j ENEMY_SKIP
+    # Only move 16 in 16 frames
+    la t0, CURRENT_FRAME
+    lw t0, 0(t0)
+    li t1, 64
+    rem t0, t0, t1
+    bne t0, zero, ENEMY_SKIP
+
+    # j ENEMY_SKIP
 
 ENEMY_MOVE:
-    # Get current state from object[3]
-
-    # If enemy is invisible skip
     mv a0, s2
     jal ra, GET_OBJECT_INFO
 
     # Inventory goes until 255
     # Se o inventario estiver em 255, a gente muda
     # de direcao e reseta
-    li t0, 255
+    li t0, 250
     blt a1, t0, ENEMY_MOVE_IGNORE_CHANGE_MOVE
 
     xori a2, a2, 1
+    # li a2, 1
+    li a1, 0
 
     slli a0, a0, 24
     slli a1, a1, 16
-    slli a2, s2, 12
+    slli a2, a2, 12
     slli a3, a3, 8
 
     or t0, zero, a0
@@ -112,6 +116,10 @@ ENEMY_MOVE:
     or t0, t0, a4
 
     sw t0, 12(s3)
+
+    mv a0, t0
+
+    j ENEMY_SKIP
 
 ENEMY_MOVE_IGNORE_CHANGE_MOVE:
     mv a0, s2
@@ -121,7 +129,7 @@ ENEMY_MOVE_IGNORE_CHANGE_MOVE:
 
     slli a0, a0, 24
     slli a1, a1, 16
-    slli a2, s2, 12
+    slli a2, a2, 12
     slli a3, a3, 8
 
     or t0, zero, a0
@@ -130,33 +138,61 @@ ENEMY_MOVE_IGNORE_CHANGE_MOVE:
     or t0, t0, a3
     or t0, t0, a4
 
-    mv a0, t0
-    li a7, 34
-    ecall
-
     sw t0, 12(s3)
 
     mv a0, s2
     jal ra, GET_OBJECT_INFO
 
-    # If animation is 0, move right
-    # Else, move left
-
     beq a2, zero, ENEMY_MOVE_RIGHT
 
 ENEMY_MOVE_LEFT:
-    mv a1, a0
+    mv a0, s2
+    jal ra, GET_OBJECT_INFO
+
+    li a1, 1
     mv a0, s0
     mv a2, zero
     jal ra, MOVE_LEFT
 
+    sw a0, 0(s3)
+
+    # li a7, 34
+    # ecall
+    
+    # li a0, 'l'
+    # li a7, 11
+    # ecall
+
+    # li a0, '\n'
+    # li a7, 11
+    # ecall
+
     j ENEMY_SKIP
 
 ENEMY_MOVE_RIGHT:
-    mv a1, a0
+    mv a0, s2
+    jal ra, GET_OBJECT_INFO
+
+    # mv a1, a0
+    # mv a0, s0
+    # li a2, 100000
     mv a0, s0
-    li a2, 1000
-    jal ra, MOVE_LEFT
+    li a1, 1
+    li a2, 100000
+    jal ra, MOVE_RIGHT
+
+    sw a0, 0(s3)
+
+    # li a7, 34
+    # ecall
+
+    # li a0, 'r'
+    # li a7, 11
+    # ecall
+
+    # li a0, '\n'
+    # li a7, 11
+    # ecall
 
 ENEMY_SKIP:
 
