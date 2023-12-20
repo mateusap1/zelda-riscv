@@ -249,6 +249,7 @@ MOVE_LEFT_END:
 # =========== MOVE_DOWN ===========
 # a0 = position
 # a1 = speed
+# a2 = edge value
 
 # Returns
 # a0 = new position
@@ -259,6 +260,8 @@ MOVE_DOWN:
 
     mv a7, a1 # save speed as a7
     li a6, 0 # This will indicate if we got to the edge
+
+    mv a5, a2
 
     # We break this position down
     mv a0, a0
@@ -276,11 +279,8 @@ MOVE_DOWN_OFFSET:
     div t0, a7, t0
     add a1, a1, t0
 
-    li t0, 14
-    bge a1, t0, MOVE_DOWN_EDGE
-
-    li t0, 14
-    blt a3, t0, MOVE_DOWN_END
+    bge a1, a5, MOVE_DOWN_EDGE
+    blt a3, a5, MOVE_DOWN_END
 
 MOVE_DOWN_OFFSET_OVERFLOW:
     # Se offsetY >= 16,
@@ -291,15 +291,14 @@ MOVE_DOWN_OFFSET_OVERFLOW:
     sub a3, a3, t0
     addi a1, a1, 1
 
-    li t0, 19
-    blt a1, t0, MOVE_DOWN_END
+    blt a1, a5, MOVE_DOWN_END
 
 MOVE_DOWN_EDGE:
     # Se posY >= 14,
     #   offsetY = 0;
     #   posY = 14;
 
-    li a1, 14
+    mv a1, a5
     mv a4, zero
     li a6, 1
 
