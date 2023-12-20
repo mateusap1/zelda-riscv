@@ -1,7 +1,8 @@
 objects:
-    .word 1
-    .word 0x00200200, player_animation, PLAYER_UPDATE, 0x10000034
+    .word 2
+    .word 0x00200200, player_animation, PLAYER_UPDATE, 0x10000034, 0x00600600, enemy_animation, ENEMY_UPDATE, 0x10001034
 
+# , 0x00600600, enemy_animation, ENEMY_UPDATE, 0x10000034
 # PLAYER
 
 # [0]:

@@ -18,9 +18,11 @@
 
 # Sprites
 .include "sprites/player.s"
+.include "sprites/enemy.s"
 
 # Animations
 .include "data/animations/player_animation.s"
+.include "data/animations/enemy_animation.s"
 
 # Objects
 .include "data/objects.s"
@@ -216,7 +218,7 @@ RUN_OBJECTS_LOOP:
 
     # Atualizar mapa
     la t0, CURRENT_MAP
-    lw s1, 0(t0)
+    lb s1, 0(t0)
 
     # ========== Find out current tilemap and gamemap ==========
     la t0, maps # t0 = maps address
@@ -340,3 +342,4 @@ RUN_OBJECTS_END:
 
 # Objects Update
 .include "data/objects/player_update.s"
+.include "data/objects/enemy_update.s"
