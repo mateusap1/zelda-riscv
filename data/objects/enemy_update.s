@@ -23,14 +23,41 @@ ENEMY_UPDATE:
     li t1, 2
     bne t0, t1, SKIP_MAKE_ENEMY_VISIBLE
 
+    # j SKIP_MAKE_ENEMY_VISIBLE
+
+    # If camera is not here, skip
+    mv a0, s0
+    jal ra, GET_OBJECT_POS
+
+    mv a6, a0
+    mv a7, a1
+
+    la t0, CAMERA_POSITION
+    lw t0, 0(t0)
+
+    mv a0, t0
+    jal ra, GET_CAMERA_POSITIONS
+
+    slli a6, a6, 4
+    slli a7, a7, 4
+
+    blt a6, a0, SKIP_MAKE_ENEMY_VISIBLE
+    blt a7, a1, SKIP_MAKE_ENEMY_VISIBLE
+
+    addi a0, a0, 320
+    addi a1, a1, 240
+
+    bgt a6, a0, SKIP_MAKE_ENEMY_VISIBLE
+    bgt a7, a1, SKIP_MAKE_ENEMY_VISIBLE
+
     mv a0, s2
     jal ra, GET_OBJECT_INFO
 
-    li s2, 1
+    li t0, 0
 
     slli a0, a0, 24
     slli a1, a1, 16
-    slli a2, s2, 12
+    slli a2, t0, 12
     slli a3, a3, 8
 
     or t0, zero, a0
@@ -40,6 +67,12 @@ ENEMY_UPDATE:
     or t0, t0, a4
 
     sw t0, 12(s3)
+
+    # lw a0, 12(s3)
+    # li a7, 34
+    # ecall
+
+    j ENEMY_SKIP
 
 SKIP_MAKE_ENEMY_VISIBLE:
 

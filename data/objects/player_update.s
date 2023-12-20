@@ -96,18 +96,6 @@ PLAYER_MOVE_UP:
     or t0, t0, a2
     or t0, t0, a3
 
-    li a0, 'a'
-    li a7, 11
-    ecall
-
-    mv a0, t0
-    li a7, 34
-    ecall
-
-    li a0, '\n'
-    li a7, 11
-    ecall
-
     # Save it
     sw t0, 0(s3)
 

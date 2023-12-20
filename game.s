@@ -176,6 +176,88 @@ RUN_OBJECTS_LOOP:
     lw s10, 12(t0)
     # ============================================
 
+    # If camera cannot see it, make it disappear
+    # ===========================================
+    mv a0, s7
+    jal ra, GET_OBJECT_POS
+
+    mv a6, a0
+    mv a7, a1
+
+    la t0, CAMERA_POSITION
+    lw t0, 0(t0)
+
+    mv a0, t0
+    jal ra, GET_CAMERA_POSITIONS
+
+    slli a6, a6, 4
+    slli a7, a7, 4
+
+    blt a6, a0, RUN_OBJECTS_LOOP_DESTROY_OBJECT
+    blt a7, a1, RUN_OBJECTS_LOOP_DESTROY_OBJECT
+
+    addi a0, a0, 320
+    addi a1, a1, 240
+
+    bgt a6, a0, RUN_OBJECTS_LOOP_DESTROY_OBJECT
+    bgt a7, a1, RUN_OBJECTS_LOOP_DESTROY_OBJECT
+
+    j RUN_OBJECTS_LOOP_SKIP_DESTROY_OBJECT
+
+RUN_OBJECTS_LOOP_DESTROY_OBJECT:
+    mv a0, s10
+    jal ra, GET_OBJECT_INFO
+
+    li t0, 15
+    slli a0, a0, 24
+    slli a1, a1, 16
+    slli a2, t0, 12
+    slli a3, a3, 8
+
+    or t0, zero, a0
+    or t0, t0, a1
+    or t0, t0, a2
+    or t0, t0, a3
+    or t0, t0, a4
+
+    # ========== Figure object address ==========
+    la t2, objects
+    addi t2, t2, 4
+    slli t1, s0, 4
+    add t2, t2, t1
+    # ===========================================
+
+    sw t0, 12(t2)
+
+    j RUN_OBJECTS_LOOP_SKIP
+
+RUN_OBJECTS_LOOP_SKIP_DESTROY_OBJECT:
+    # ============= Load object data =============
+
+        # ========== Figure object address ==========
+        la t0, objects
+        addi t0, t0, 4
+        slli t1, s0, 4
+        add t0, t0, t1
+        # ===========================================
+
+    lw s7, 0(t0)
+    lw s8, 4(t0)
+    lw s9, 8(t0)
+    lw s10, 12(t0)
+    # ============================================
+    
+    # ===========================================
+
+    # Animation 15 means object is not present
+    mv a0, s10
+    jal ra, GET_OBJECT_INFO
+
+    # If is not present we only run its code
+
+    li t0, 15
+    beq a2, t0, RUN_OBJECTS_LOOP_RUN_CODE
+
     # =========== Render tiles ===========
     # Pra a gente não apagar o mapa no caminho desse
     # objeto
@@ -197,6 +279,8 @@ RUN_OBJECTS_LOOP:
     jal ra, RENDER_OBJECT
     # ======================================
 
+RUN_OBJECTS_LOOP_RUN_CODE:
+
     # ========== Figure object address ==========
     la t0, objects
     addi t0, t0, 4
@@ -211,6 +295,24 @@ RUN_OBJECTS_LOOP:
     mv a3, t0
     jalr ra, s9, 0
     # =========================================
+
+    # ========== Figure object address ==========
+    la t0, objects
+    addi t0, t0, 4
+    slli t1, s0, 4
+    add t0, t0, t1
+    # ===========================================
+
+    lw t0, 12(t0)
+
+    # Skip if object is destroyed
+
+    # Animation 15 means object is not present
+    mv a0, t0
+    jal ra, GET_OBJECT_INFO
+
+    li t0, 15
+    beq a2, t0, RUN_OBJECTS_LOOP_SKIP
 
     # Atualizar camera
     la t0, CAMERA_POSITION
@@ -311,9 +413,7 @@ RUN_OBJECTS_LOOP:
     li t0, 0xFF200604
     sb t1, 0(t0)
 
-    # If position is different than before,
-    # clear last position and rerender object
-
+RUN_OBJECTS_LOOP_SKIP:
     addi s0, s0, 1
 
     j RUN_OBJECTS_LOOP
