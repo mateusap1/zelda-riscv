@@ -110,6 +110,14 @@ GAME_LOOP:
     addi t1, t1, 1
     sw t1, 0(t0)
 
+    la t0, objects
+    lw t0, 16(t0) # player info
+
+    mv a0, t0
+    jal ra, GET_OBJECT_INFO
+
+    ble a4, zero, GAME_END
+
     j GAME_LOOP
 
 GAME_END: j GAME_END

@@ -118,7 +118,7 @@ ENEMY_MOVE:
 
     sw t0, 12(s3)
 
-    mv a0, t0
+    # mv a0, t0
 
     j ENEMY_SKIP
 
@@ -140,6 +140,55 @@ ENEMY_MOVE_IGNORE_CHANGE_MOVE:
     or t0, t0, a4
 
     sw t0, 12(s3)
+
+    # Get player position
+    # If player position = enemy position
+    la t0, objects
+    lw t0, 4(t0) # player position
+
+    mv a0, t0
+    jal ra, GET_OBJECT_POS
+
+    mv a6, a0
+    mv a7, a1
+
+    mv a0, s0
+    jal ra, GET_OBJECT_POS
+
+    bne a6, a0, SKIP_PLAYER_DAMAGE
+    bne a7, a1, SKIP_PLAYER_DAMAGE
+
+    la t0, objects
+    lw t0, 16(t0) # player info
+
+    mv a0, t0
+    jal ra, GET_OBJECT_INFO
+
+    addi a4, a4, -20
+
+    slli a0, a0, 24
+    slli a1, a1, 16
+    slli a2, a2, 12
+    slli a3, a3, 8
+
+    or t0, zero, a0
+    or t0, t0, a1
+    or t0, t0, a2
+    or t0, t0, a3
+    or t0, t0, a4
+
+    la t1, objects
+    sw t0, 16(t1)
+
+    # mv a0, a4
+    # li a7, 1
+    # ecall
+
+    # li a0, '\n'
+    # li a7, 11
+    # ecall
+
+SKIP_PLAYER_DAMAGE:
 
     mv a0, s2
     jal ra, GET_OBJECT_INFO
