@@ -46,11 +46,11 @@ GET_OBJECT_RENDER_COORDS:
     # a2 = Tile Offset X
     # a3 = Tile Offset Y
 
-    srli t0, a0, 4 # t0 = tilePosX * 16
+    slli t0, a0, 4 # t0 = tilePosX * 16
     sub t0, t0, s1 # t0 = tilePosX * 16 - camPosX
-    add t0, t0, a3 # Render coord x = t0 + playerOffsetX
+    add t0, t0, a2 # Render coord x = t0 + playerOffsetX
 
-    srli t1, a1, 4 # t1 = tilePosY * 16
+    slli t1, a1, 4 # t1 = tilePosY * 16
     sub t1, t1, s2  # t1 = tilePosY * 16 - camPosY
     add t1, t1, a3 # Render coord y = t0 + playerOffsetY
 
@@ -251,7 +251,7 @@ RENDER_TILE_NOT_ZERO_X:
 RENDER_TILE_NOT_ZERO_Y:
 
     # Find tile
-    li t4, 20
+    lw t4, 0(a4)
     mul t4, a3, t4 # tile pos y * gamemap width
     add t4, t4, a4
     add t4, t4, a2
@@ -272,15 +272,6 @@ RENDER_TILE_OFFSET_X_NOT_ZERO:
     beq t1, zero, RENDER_TILE_OFFSET_Y_NOT_ZERO
     mv t1, zero
 RENDER_TILE_OFFSET_Y_NOT_ZERO:
-
-    # a0 = endereço tilemap
-    # a1 = render position x
-    # a2 = render position y
-    # a3 = frame (0 ou 1)
-    # a4 = tile index
-    # a5 = tile offset x
-    # a6 = tile offset y
-
     mv a0, a5
     mv a1, t2
     mv a2, t3
@@ -338,7 +329,7 @@ RENDER_BACKGROUND_TILES:
     mv s4, a1
     
     mv a0, a3
-    jal ra, GET_CAMERA_POSITIONS
+    jal ra, GET_OBJECT_POS
     mv s5, a0
     mv s6, a1
     mv s7, a2
@@ -351,7 +342,7 @@ RENDER_BACKGROUND_CURRENT_TILE:
     mv a3, s6 
     mv a4, s1
     mv a5, s0
-    mv s6, s2
+    mv a6, s2
     jal ra, RENDER_TILE
 
 RENDER_BACKGROUND_RIGHT_TILE:
@@ -364,7 +355,7 @@ RENDER_BACKGROUND_RIGHT_TILE:
     mv a3, s6 
     mv a4, s1
     mv a5, s0
-    mv s6, s2
+    mv a6, s2
     jal ra, RENDER_TILE
 
 RENDER_BACKGROUND_DOWN_TILE:
@@ -377,8 +368,9 @@ RENDER_BACKGROUND_DOWN_TILE:
     addi a3, s6, 1
     mv a4, s1
     mv a5, s0
-    mv s6, s2
+    mv a6, s2
     jal ra, RENDER_TILE
+
 
 RENDER_BACKGROUND_DIAGONAL_TILE:
     # If offest y == 0: skip
@@ -387,13 +379,13 @@ RENDER_BACKGROUND_DIAGONAL_TILE:
     # If offest x == 0: skip
     beq s7, zero, RENDER_BACKGROUND_END
 
-    mv a0, s3
-    mv a1, s4 
-    addi a2, s5, 1
-    addi a3, s6, 1
-    mv a4, s1
-    mv a5, s0
-    mv s6, s2
+    mv a0, s3 # a0 = camera position x
+    mv a1, s4 # a1 = camera position y
+    addi a2, s5, 1 # a2 = tile position x
+    addi a3, s6, 1 # a3 = tile position y
+    mv a4, s1 # a4 = gamemap address
+    mv a5, s0 # a5 = tilemap address
+    mv a6, s2 # a6 = frame
     jal ra, RENDER_TILE
 
 RENDER_BACKGROUND_END:
@@ -417,15 +409,15 @@ RENDER_BACKGROUND_END:
 
 # a0 = map index => vai nos dar acesso ao tilemap e gamemap
 # a1 = frame (0 ou 1)
-# a2 = pos x do player
-# a3 = pos y do player
+# a2 = camera pos x
+# a3 = camera pos y
 
 # s0 = i (coord x do bitmap)
 # s1 = j (coord y do bitmap)
 # s2 = a0 = map index
 # s3 = a1 = frame
-# s4 = a2 = pos x do player
-# s5 = a3 = pos y do player
+# s4 = a2 = camera pos x
+# s5 = a3 = camera pos y
 # s6 = tilemap address
 # s7 = gamemap address
 # s8 = gamemap width
@@ -433,7 +425,7 @@ RENDER_BACKGROUND_END:
 # s10 = offsetY
 
 RENDER_MAP:
-    addi sp, sp, -44
+    addi sp, sp, -48
     sw ra, 44(sp)
     sw s10, 40(sp)
     sw s9, 36(sp)
@@ -466,7 +458,7 @@ RENDER_MAP_LOOP_Y_START:
     mv s1, zero
 
 RENDER_MAP_LOOP_Y:
-    li t0, 240
+    li t0, 15
     bge s1, t0, RENDER_MAP_LOOP_Y_END
 
     # =========== RENDER_MAP_LOOP_Y_INNER ===========
@@ -475,38 +467,36 @@ RENDER_MAP_LOOP_Y:
         mv s0, zero
 
     RENDER_MAP_LOOP_X:
-        li t0, 320
+        li t0, 20
         bge s0, t0, RENDER_MAP_LOOP_X_END
 
         # =========== RENDER_MAP_LOOP_X_INNER ===========
 
+        # =============== RENDER_TILE ===============
+        # a0 = camera position x = s4
+        # a1 = camera position y = s5
+        # a2 = tile position x = s4 / 16 + i
+        # a3 = tile position y = s5 / 16 + j
+        # a4 = gamemap address = s7
+        # a5 = tilemap address = s6
+        # a6 = frame = s3
+
         mv a0, s4
         mv a1, s5
-        mv a2, s0
-        mv a3, s1
-        mv a4, s6
-        mv a5, s7
-        mv a6, s8
-        jal ra, FIND_GAMEMAP_TILE
 
-        mv t0, a0 # t0 = tile index
-        mv s9, a3 # t1 = offsetX
-        mv s10, a4 # t2 = offsetY
+        srli a2, s4, 4
+        add a2, a2, s0
 
-        mv a0, s6
-        mv a1, s0
-        mv a2, s1
-        mv a3, s3
-        mv a4, t0
-        mv a5, s9
-        mv a6, s10
+        srli a3, s5, 4
+        add a3, a3, s1
 
-        jal ra, PRINT_TILE
+        mv a4, s7
+        mv a5, s6
+        mv a6, s3
 
-        # Calcular index i da próxima iteração
-        li t0, 16
-        sub t0, t0, s9
-        add s0, s0, t0
+        jal ra, RENDER_TILE
+
+        addi s0, s0, 1
 
         j RENDER_MAP_LOOP_X
 
@@ -514,9 +504,7 @@ RENDER_MAP_LOOP_Y:
     
     RENDER_MAP_LOOP_X_END:
 
-    li t0, 16
-    sub t0, t0, s10
-    add s1, s1, t0
+    addi s1, s1, 1
 
     j RENDER_MAP_LOOP_Y
 
@@ -537,7 +525,7 @@ RENDER_MAP_LOOP_Y_END:
     lw s1, 4(sp)
     lw s0, 0(sp)
 
-    addi sp, sp, 44
+    addi sp, sp, 48
 
     jalr zero, ra, 0
 

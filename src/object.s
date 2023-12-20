@@ -3,6 +3,9 @@
 # GET_OBJECT_INFO
 # GET_CAMERA_POSITIONS
 # MOVE_RIGHT
+# MOVE_LEFT
+# MOVE_UP
+# MOVE_DOWN
 # =========================
 
 # ===================== GET_OBJECT_POS =====================
@@ -97,6 +100,7 @@ GET_CAMERA_POSITIONS:
 # =========== MOVE_RIGHT ===========
 # a0 = position
 # a1 = speed
+# a2 = edge value
 
 # Returns
 # a0 = new position
@@ -108,6 +112,8 @@ MOVE_RIGHT:
     mv a7, a1 # save speed as a7
     li a6, 0 # This will indicate if we got to the edge
 
+    mv a5, a2
+
     # We break this position down
     mv a0, a0
     jal ra, GET_OBJECT_POS
@@ -117,15 +123,14 @@ MOVE_RIGHT_OFFSET:
     # Adiciona a0 posX speed / 16
 
     li t0, 16
-    remu t0, a7, t0
+    rem t0, a7, t0
     add a2, a2, t0
 
     li t0, 16
-    divu t0, a7, t0
+    div t0, a7, t0
     add a0, a0, t0
 
-    li t0, 19
-    bge a0, t0, MOVE_RIGHT_EDGE
+    bge a0, a5, MOVE_RIGHT_EDGE
 
     li t0, 16
     blt a2, t0, MOVE_RIGHT_END
@@ -139,26 +144,25 @@ MOVE_RIGHT_OFFSET_OVERFLOW:
     sub a2, a2, t0
     addi a0, a0, 1
 
-    li t0, 19
-    blt a0, t0, MOVE_RIGHT_END
+    blt a0, a5, MOVE_RIGHT_END
 
 MOVE_RIGHT_EDGE:
     # Se posX >= 19,
     #   offsetX = 0;
     #   posX = 19;
 
-    li a0, 19
+    mv a0, a5
     mv a2, zero
     li a6, 1
 
 MOVE_RIGHT_END:
-    add t0, zero, a3
+    or t0, zero, a3
     slli a2, a2, 4
-    add t0, t0, a2
+    or t0, t0, a2
     slli a1, a1, 8
-    add t0, t0, a1
+    or t0, t0, a1
     slli a0, a0, 20
-    add t0, t0, a0
+    or t0, t0, a0
 
     mv a0, t0
     mv a1, a6
@@ -169,3 +173,223 @@ MOVE_RIGHT_END:
     jalr zero, ra, 0
 # ================
 
+# =========== MOVE_LEFT ===========
+# a0 = position
+# a1 = speed
+# a2 = edge value
+
+# Returns
+# a0 = new position
+# a1 = whether it got to the edge
+MOVE_LEFT:
+    addi sp, sp, -4
+    sw ra, 0(sp)
+
+    mv a7, a1 # save speed as a7
+    li a6, 0 # This will indicate if we got to the edge
+
+    mv a5, a2
+
+    # We break this position down
+    mv a0, a0
+    jal ra, GET_OBJECT_POS
+
+MOVE_LEFT_OFFSET:
+    # Subtrai ao offsetX speed % 16
+    # Subtrai a0 posX speed / 16
+
+    li t0, 16
+    rem t0, a7, t0
+    sub a2, a2, t0
+
+    li t0, 16
+    div t0, a7, t0
+    sub a0, a0, t0
+
+    blt a0, a5, MOVE_LEFT_EDGE
+    bge a2, zero, MOVE_LEFT_END
+
+MOVE_LEFT_OFFSET_OVERFLOW:
+    # Se offsetX < 0,
+    #   offsetX += 16;
+    #   posX -= 1;
+
+    addi a2, a2, 16
+    addi a0, a0, -1
+
+    bge a0, a5, MOVE_LEFT_END
+
+MOVE_LEFT_EDGE:
+    # Se posX < 0,
+    #   offsetX = 0;
+    #   posX = 0;
+
+    mv a0, a5
+    mv a2, zero
+    li a6, 1
+
+MOVE_LEFT_END:
+    or t0, zero, a3
+    slli a2, a2, 4
+    or t0, t0, a2
+    slli a1, a1, 8
+    or t0, t0, a1
+    slli a0, a0, 20
+    or t0, t0, a0
+
+    mv a0, t0
+    mv a1, a6
+
+    lw ra, 0(sp)
+    addi sp, sp, 4
+
+    jalr zero, ra, 0
+# ================
+
+# =========== MOVE_DOWN ===========
+# a0 = position
+# a1 = speed
+# a2 = edge value
+
+# Returns
+# a0 = new position
+# a1 = whether it got to the edge
+MOVE_DOWN:
+    addi sp, sp, -4
+    sw ra, 0(sp)
+
+    mv a7, a1 # save speed as a7
+    li a6, 0 # This will indicate if we got to the edge
+
+    mv a5, a2
+
+    # We break this position down
+    mv a0, a0
+    jal ra, GET_OBJECT_POS
+
+MOVE_DOWN_OFFSET:
+    # Adiciona ao offsetY speed % 16
+    # Adiciona a0 posY speed / 16
+
+    li t0, 16
+    rem t0, a7, t0
+    add a3, a3, t0
+
+    li t0, 16
+    div t0, a7, t0
+    add a1, a1, t0
+
+    bge a1, a5, MOVE_DOWN_EDGE
+    blt a3, a5, MOVE_DOWN_END
+
+MOVE_DOWN_OFFSET_OVERFLOW:
+    # Se offsetY >= 16,
+    #   offsetY -= 16;
+    #   posY += 1;
+
+    li t0, 16
+    sub a3, a3, t0
+    addi a1, a1, 1
+
+    blt a1, a5, MOVE_DOWN_END
+
+MOVE_DOWN_EDGE:
+    # Se posY >= 14,
+    #   offsetY = 0;
+    #   posY = 14;
+
+    mv a1, a5
+    mv a4, zero
+    li a6, 1
+
+MOVE_DOWN_END:
+    or t0, zero, a3
+    slli a2, a2, 4
+    or t0, t0, a2
+    slli a1, a1, 8
+    or t0, t0, a1
+    slli a0, a0, 20
+    or t0, t0, a0
+
+    mv a0, t0
+    mv a1, a6
+
+    lw ra, 0(sp)
+    addi sp, sp, 4
+
+    jalr zero, ra, 0
+# ================
+
+# =========== MOVE_UP ===========
+# a0 = position
+# a1 = speed
+# a2 = edge
+
+# Returns
+# a0 = new position
+# a1 = whether it got to the edge
+MOVE_UP:
+    addi sp, sp, -4
+    sw ra, 0(sp)
+
+    mv a7, a1 # save speed as a7
+    li a6, 0 # This will indicate if we got to the edge
+
+    mv a5, a2
+
+    # We break this position down
+    mv a0, a0
+    jal ra, GET_OBJECT_POS
+
+MOVE_UP_OFFSET:
+    # Subtrai ao offsetY speed % 16
+    # Subtrai a0 posY speed / 16
+
+    li t0, 16
+    rem t0, a7, t0
+    sub a3, a3, t0
+
+    li t0, 16
+    div t0, a7, t0
+    sub a1, a1, t0
+
+    blt a1, a5, MOVE_UP_EDGE
+    bge a3, zero, MOVE_UP_END
+
+MOVE_UP_OFFSET_OVERFLOW:
+    # Se offsetY < 0,
+    #   offsety += 16;
+    #   posy -= 1;
+
+    addi a3, a3, 16
+    addi a1, a1, -1
+
+    bge a1, a5, MOVE_UP_END
+
+MOVE_UP_EDGE:
+    # Se posX < 0,
+    #   offsetX = 0;
+    #   posX = 0;
+
+    mv a1, a5
+    mv a3, zero
+    li a6, 1
+
+MOVE_UP_END:
+    or t0, zero, a3
+    slli a2, a2, 4
+    or t0, t0, a2
+    slli a1, a1, 8
+    or t0, t0, a1
+    slli a0, a0, 20
+    or t0, t0, a0
+
+    mv a0, t0
+    mv a1, a6
+
+    lw ra, 0(sp)
+    addi sp, sp, 4
+
+    jalr zero, ra, 0
+
+# ====================
