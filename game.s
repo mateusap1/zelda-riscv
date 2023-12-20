@@ -13,6 +13,12 @@
 .include "data/maps/tilemap/areasecreta_tilemap.s"
 .include "data/maps/tilemap/telainicial_tilemap.s"
 
+# Collisionmaps
+.include "data/maps/collisionmap/overworld_collision.s"
+.include "data/maps/collisionmap/areasecreta_collision.s"
+.include "data/maps/collisionmap/masmorra_collision.s"
+.include "data/maps/collisionmap/underworld_collision.s"
+
 # Map
 .include "data/maps.s"
 
@@ -48,8 +54,8 @@ SETUP:
     li s2, 0
 
     jal ra, START_MAP
-    
-RESET_MUSIC: 
+
+    RESET_MUSIC: 
     la t4,startmidi  #endereco da musica
     lw t3,0(t4)     # t3 = quantidade de notas 
     addi t4,t4,4     #t4 = endereco da primeira nota 
@@ -221,6 +227,7 @@ RUN_OBJECTS_LOOP:
     mv a4, s3 # a4 = camera position
     jal ra, RENDER_BACKGROUND_TILES
     # ====================================
+    
 
     # ====== Print current sprite ======
     mv a0, s7 # a0 = object position - Objects[i][0]
