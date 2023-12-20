@@ -27,6 +27,14 @@ PLAYER_UPDATE_KEYPOLL:
 	andi t2, t1, 1 # Mascara o primeiro bit (verifica sem tem tecla)
 	beqz t2, PLAYER_MOVE_END # Se não tem tecla, então continua o jogo
 	lw t1, 4(t0) # t1 = conteudo da tecla 
+
+    mv a0, s0
+    li a7, 34
+    ecall
+
+    li a0, '\n'
+    li a7, 11
+    ecall
 	
 	li t0, 'w'
 	beq t0, t1, PLAYER_MOVE_UP
@@ -48,12 +56,82 @@ PLAYER_MOVE_UP:
     jal ra, GET_OBJECT_INFO
     # a0 is the speed
 
-    mv a1, a0
+    mv a6, a0
+
+    la t0, CAMERA_POSITION
+    lw t0, 0(t0)
+
+    # Split camera position
+    mv a0, t0
+    jal ra, GET_CAMERA_POSITIONS
+
+    srli t0, a1, 4
+
+    mv a2, t0
+    mv a1, a6
     mv a0, s0
     jal ra, MOVE_UP
     # a0 is the new position
 
     sw a0, 0(s3)
+
+    beq a1, zero, PLAYER_MOVE_UP_SKIP_CAMERA_MOVEMENT
+
+    # Get player position broken down
+    mv a0, a0
+    jal ra, GET_OBJECT_POS
+
+    # Se a nossa posiçao y é menor que o limite, para
+    ble a1, zero, PLAYER_MOVE_UP_SKIP_CAMERA_MOVEMENT
+
+    # Change player position
+    addi a1, a1, -1
+    # li a1, 14
+
+    # Join them together
+    slli a0, a0, 20
+    slli a1, a1, 8
+    slli a2, a2, 4
+
+    or t0, zero, a0
+    or t0, t0, a1
+    or t0, t0, a2
+    or t0, t0, a3
+
+    li a0, 'a'
+    li a7, 11
+    ecall
+
+    mv a0, t0
+    li a7, 34
+    ecall
+
+    li a0, '\n'
+    li a7, 11
+    ecall
+
+    # Save it
+    sw t0, 0(s3)
+
+    # Break down camera position
+    la t0, CAMERA_POSITION
+    lw t0, 0(t0)
+
+    mv a0, t0
+    jal ra, GET_CAMERA_POSITIONS
+
+    addi a1, a1, -240
+
+    # Join them together
+    slli a0, a0, 16
+    or t0, a0, a1
+
+    la t1, CAMERA_POSITION
+    sw t0, 0(t1)
+
+    jal ra, START_MAP
+
+PLAYER_MOVE_UP_SKIP_CAMERA_MOVEMENT:
 
     j PLAYER_MOVE_END
 
@@ -89,7 +167,7 @@ PLAYER_MOVE_DOWN:
     la t2, CURRENT_MAP
     lw t2, 0(t2)
 
-    beq a1, zero, PLAYER_MOVE_RIGHT_SKIP_CAMERA_MOVEMENT
+    beq a1, zero, PLAYER_MOVE_DOWN_SKIP_CAMERA_MOVEMENT
 
     # Get player position broken down
     mv a0, a0

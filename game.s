@@ -210,6 +210,10 @@ RUN_OBJECTS_LOOP:
     jalr ra, s9, 0
     # =========================================
 
+    # Atualizar camera
+    la t0, CAMERA_POSITION
+    lw s3, 0(t0)
+
     # =========== Render tiles ===========
     # Pra a gente não apagar o mapa no caminho desse
     # objeto
