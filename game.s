@@ -214,6 +214,20 @@ RUN_OBJECTS_LOOP:
     la t0, CAMERA_POSITION
     lw s3, 0(t0)
 
+    # Atualizar mapa
+    la t0, CURRENT_MAP
+    lw s1, 0(t0)
+
+    # ========== Find out current tilemap and gamemap ==========
+    la t0, maps # t0 = maps address
+    addi t0, t0, 4 # skip maps num
+    slli t1, s1, 3 # multiply index by 8
+    add t0, t0, t1 # maps address + 4 + map_index * 8
+
+    lw s5, 0(t0)
+    lw s6, 4(t0)
+    # ==========================================================
+
     # =========== Render tiles ===========
     # Pra a gente não apagar o mapa no caminho desse
     # objeto

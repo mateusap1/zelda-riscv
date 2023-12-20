@@ -25,17 +25,9 @@ PLAYER_UPDATE_KEYPOLL:
 	li t0, 0xFF200000 # t0 = endereço de controle do teclado
 	lw t1, 0(t0) # t1 = conteudo de t0
 	andi t2, t1, 1 # Mascara o primeiro bit (verifica sem tem tecla)
-	beqz t2, PLAYER_MOVE_END # Se não tem tecla, então continua o jogo
+	beqz t2, PLAYER_KEYPOLL_END # Se não tem tecla, então continua o jogo
 	lw t1, 4(t0) # t1 = conteudo da tecla 
 
-    mv a0, s0
-    li a7, 34
-    ecall
-
-    li a0, '\n'
-    li a7, 11
-    ecall
-	
 	li t0, 'w'
 	beq t0, t1, PLAYER_MOVE_UP
 	
@@ -48,7 +40,13 @@ PLAYER_UPDATE_KEYPOLL:
     li t0, 'd'
 	beq t0, t1, PLAYER_MOVE_RIGHT
 
-    j PLAYER_MOVE_END
+    li t0, 'x'
+	beq t0, t1, GO_TO_AREA_SECRETA
+
+    li t0, 'z'
+	beq t0, t1, GO_TO_MASMORRA
+
+    j PLAYER_KEYPOLL_END
 
 PLAYER_MOVE_UP:
     # First get speed
@@ -133,7 +131,7 @@ PLAYER_MOVE_UP:
 
 PLAYER_MOVE_UP_SKIP_CAMERA_MOVEMENT:
 
-    j PLAYER_MOVE_END
+    j PLAYER_KEYPOLL_END
 
 PLAYER_MOVE_DOWN:
     # First get speed
@@ -223,7 +221,7 @@ PLAYER_MOVE_DOWN:
 
 PLAYER_MOVE_DOWN_SKIP_CAMERA_MOVEMENT:
 
-    j PLAYER_MOVE_END
+    j PLAYER_KEYPOLL_END
 
 PLAYER_MOVE_RIGHT:
     # First get speed
@@ -311,7 +309,7 @@ PLAYER_MOVE_RIGHT:
 
 PLAYER_MOVE_RIGHT_SKIP_CAMERA_MOVEMENT:
 
-    j PLAYER_MOVE_END
+    j PLAYER_KEYPOLL_END
 
 PLAYER_MOVE_LEFT:
     # First get speed
@@ -385,9 +383,33 @@ PLAYER_MOVE_LEFT:
 
 PLAYER_MOVE_LEFT_SKIP_CAMERA_MOVEMENT:
 
-    j PLAYER_MOVE_END
+    j PLAYER_KEYPOLL_END
 
-PLAYER_MOVE_END:
+GO_TO_MASMORRA:
+    la t0, CURRENT_MAP
+    li t1, 2
+    sb t1, 0(t0)
+
+    jal ra, START_MAP
+
+    li t0, 0x00100100
+    sw t0, 0(s3)
+
+    j PLAYER_KEYPOLL_END
+
+GO_TO_AREA_SECRETA:
+    la t0, CURRENT_MAP
+    li t1, 1
+    sb t1, 0(t0)
+
+    jal ra, START_MAP
+
+    li t0, 0x00100100
+    sw t0, 0(s3)
+
+    j PLAYER_KEYPOLL_END
+
+PLAYER_KEYPOLL_END:
     lw s3, 16(sp)
     lw s2, 12(sp)
     lw s1, 8(sp)
